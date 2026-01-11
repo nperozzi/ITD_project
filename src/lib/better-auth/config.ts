@@ -35,7 +35,7 @@ export const auth = betterAuth({
         plans: [
           {
             name: "basic", // the name of the plan, it'll be automatically lower cased when stored in the database
-            priceId: "price_1SoAHqKBiO9LIq9bprI8aXZP", // the price ID from stripe
+            priceId: "price_1SoAHqKBiO9LIq9bprI8aXZP", // TODO: Replace with your actual Stripe Price ID
             limits: {},
           },
         ],
