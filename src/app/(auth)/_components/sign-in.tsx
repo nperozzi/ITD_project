@@ -17,14 +17,15 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function SignIn() {
+export default function SignIn(props: { callbackURL?: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const callbackURL = props.callbackURL ?? "/dashboard";
 
   return (
-    <Card className="max-w-md">
+    <Card className="w-full min-h-screen md:min-h-0 md:h-auto md:max-w-md rounded-none md:rounded-xl border-0 md:border shadow-none md:shadow-sm">
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
         <CardDescription className="text-xs md:text-sm">
@@ -50,7 +51,10 @@ export default function SignIn() {
           <div className="grid gap-2">
             <div className="flex items-center">
               <Label htmlFor="password">Password</Label>
-              <Link href="#" className="ml-auto inline-block text-sm underline">
+              <Link
+                href="/forgot-password"
+                className="ml-auto inline-block text-sm underline"
+              >
                 Forgot your password?
               </Link>
             </div>
@@ -84,6 +88,7 @@ export default function SignIn() {
                 {
                   email,
                   password,
+                  callbackURL,
                 },
                 {
                   onRequest: (ctx) => {
@@ -117,7 +122,7 @@ export default function SignIn() {
                 await authClient.signIn.social(
                   {
                     provider: "google",
-                    callbackURL: "/dashboard",
+                    callbackURL,
                   },
                   {
                     onRequest: (ctx) => {
@@ -155,6 +160,13 @@ export default function SignIn() {
               </svg>
               Sign in with Google
             </Button>
+          </div>
+
+          <div className="text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <Link href="/sign-up" className="underline">
+              Create an account
+            </Link>
           </div>
         </div>
       </CardContent>

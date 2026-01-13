@@ -7,6 +7,18 @@ export default async function IndexPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
+  if (!session) {
+    return (
+      <main className="flex h-screen w-screen flex-col items-center justify-center gap-2">
+        <div>Please sign in to continue.</div>
+        <Link href="/sign-in">
+          <Button>Sign In</Button>
+        </Link>
+      </main>
+    );
+  }
+
   const plan = await auth.api.listActiveSubscriptions({
     headers: await headers(),
   });
@@ -21,8 +33,11 @@ export default async function IndexPage() {
             "Free")}
         .
       </div>
-      <Link href={session ? "/sign-out" : "/sign-in"}>
-        <Button>{session ? "Sign Out" : "Sign In"}</Button>
+      <Link href="/sign-out">
+        <Button>Sign Out</Button>
+      </Link>
+      <Link href="/settings">
+        <Button>Go to Settings</Button>
       </Link>
     </main>
   );
