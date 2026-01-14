@@ -279,14 +279,14 @@ export default function SettingsPage() {
                 <CardFooter>
                   <Button
                     className="w-full"
-                    variant="default"
-                    // Note: This needs a real priceID in config to work
                     onClick={() =>
-                      alert(
-                        "Configure Pro plan price ID in src/lib/better-auth/config.ts",
-                      )
+                      handleUpgrade("price_1SpUQTKBiO9LIq9bqVSOSMIC", "pro")
                     }
+                    disabled={!!isUpgrading}
                   >
+                    {isUpgrading === "price_1SpUQTKBiO9LIq9bqVSOSMIC" && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
                     Subscribe to Pro
                   </Button>
                 </CardFooter>

@@ -19,7 +19,7 @@ export default async function IndexPage() {
     );
   }
 
-  const plan = await auth.api.listActiveSubscriptions({
+  const subscriptions = await auth.api.listActiveSubscriptions({
     headers: await headers(),
   });
   const username = session?.user.name || "Guest";
@@ -27,9 +27,9 @@ export default async function IndexPage() {
     <main className="flex h-screen w-screen flex-col items-center justify-center gap-2">
       <div>
         Hello, {username}! Your plan is{" "}
-        {plan[0] &&
-          (plan[0]?.plan.substring(0, 1).toUpperCase() +
-            plan[0]?.plan.substring(1) ||
+        {subscriptions[0] &&
+          (subscriptions[0]?.plan.substring(0, 1).toUpperCase() +
+            subscriptions[0]?.plan.substring(1) ||
             "Free")}
         .
       </div>
