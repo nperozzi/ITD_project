@@ -1,0 +1,22 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  backend:
+    build: ./backend
+    depends_on:
+      - mosquitto
+
+  gateway:
+    build: ./gateway
+    depends_on:
+      - mosquitto
+
+  tag:
+    build: ./tag
+    depends_on:
+      - mosquitto
