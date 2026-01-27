@@ -12,7 +12,8 @@ export const env = createEnv({
     STRIPE_PUBLISHABLE_KEY: z.string(),
     STRIPE_SECRET_KEY: z.string(),
     STRIPE_WEBHOOK_SECRET: z.string(),
-    DATABASE_URL: z.url(),
+    TURSO_CONNECTION_URL: z.string(),
+    TURSO_AUTH_TOKEN: z.string().optional(), // Optional for local development
     PROXY_DEVELOPMENT_URL: z.url().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -31,7 +32,8 @@ export const env = createEnv({
     STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-    DATABASE_URL: process.env.DATABASE_URL,
+    TURSO_CONNECTION_URL: process.env.TURSO_CONNECTION_URL,
+    TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN,
     PROXY_DEVELOPMENT_URL: process.env.PROXY_DEVELOPMENT_URL,
     NODE_ENV: process.env.NODE_ENV,
   },
