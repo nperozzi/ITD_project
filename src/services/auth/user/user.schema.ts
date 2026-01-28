@@ -20,6 +20,6 @@ export const user = sqliteTable("user", {
 });
 
 export const userRelations = relations(user, ({ many }) => ({
-  account: many(account),
-  session: many(session),
+  accounts: many(account),
+  sessions: many(session),
 }));

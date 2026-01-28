@@ -1,8 +1,10 @@
+import { deviceRouter } from "@/services/device/device.router";
+import { gatewayRouter } from "@/services/gateway/gateway.router";
 import { createCallerFactory, createTRPCRouter } from "@/services/trpc";
-import { userRouter } from "./auth/user/user.router";
 
 export const appRouter = createTRPCRouter({
-  user: userRouter,
+  device: deviceRouter,
+  gateway: gatewayRouter,
 });
 
 export const createCaller = createCallerFactory(appRouter);

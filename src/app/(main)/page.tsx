@@ -1,3 +1,4 @@
+import DashboardView from "@/app/(main)/_components/dashboard/dashboard-view";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/better-auth";
 import { headers } from "next/headers";
@@ -19,26 +20,6 @@ export default async function IndexPage() {
     );
   }
 
-  const subscriptions = await auth.api.listActiveSubscriptions({
-    headers: await headers(),
-  });
   const username = session?.user.name || "Guest";
-  return (
-    <main className="flex h-screen w-screen flex-col items-center justify-center gap-2">
-      <div>
-        Hello, {username}! Your plan is{" "}
-        {subscriptions[0] &&
-          (subscriptions[0]?.plan.substring(0, 1).toUpperCase() +
-            subscriptions[0]?.plan.substring(1) ||
-            "Free")}
-        .
-      </div>
-      <Link href="/sign-out">
-        <Button>Sign Out</Button>
-      </Link>
-      <Link href="/settings">
-        <Button>Go to Settings</Button>
-      </Link>
-    </main>
-  );
+  return <DashboardView username={username} />;
 }

@@ -21,3 +21,18 @@ export function cn(...inputs: ClassValue[]): string {
 export function jts(value: unknown): string {
   return JSON.stringify(value, null, 2);
 }
+
+/**
+ * Determines the base URL of the application based on the execution environment.
+ *
+ * @returns The base URL as a string.
+ */
+export function getBaseURL(): string {
+  if (typeof window !== "undefined") {
+    return "";
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return `http://localhost:${process.env.PORT ?? 3000}`;
+}
