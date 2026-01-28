@@ -1,10 +1,10 @@
-import { deviceRouter } from "@/services/device/device.router";
 import { gatewayRouter } from "@/services/gateway/gateway.router";
+import { productRouter } from "@/services/product/product.router";
 import { createCallerFactory, createTRPCRouter } from "@/services/trpc";
 
 export const appRouter = createTRPCRouter({
-  device: deviceRouter,
   gateway: gatewayRouter,
+  product: productRouter,
 });
 
 export const createCaller = createCallerFactory(appRouter);
