@@ -65,7 +65,7 @@ export class LabelService {
   }) {
     // Check if serial exists and is unclaimed
     const serial = await this.repository.readSerialByNumber({
-      serialNumber: params.serialNumber,
+      serialNumber: params.serialNumber.toLowerCase(),
     });
 
     if (!serial) {
@@ -83,7 +83,7 @@ export class LabelService {
     // Create label record in pending status
     const label = await this.repository.create({
       name: params.name,
-      serialNumber: params.serialNumber,
+      serialNumber: params.serialNumber.toLowerCase(),
       ownerId: params.ownerId,
       status: "pending",
     });
@@ -186,15 +186,37 @@ export class LabelService {
   }
 
   /**
-   * Delete a label.
+   * Delete a label and release its serial for re-use.
    */
   async delete(params: { id: string; ownerId: string }) {
-    const result = await this.repository.delete(params);
-
-    if (!result) {
+    // Get label first to find serial
+    const existing = await this.repository.read(params);
+    if (!existing) {
       const errorMessage = `Label with ID "${params.id}" not found.`;
       this.logger.error(`delete(${jts(params)}): ${errorMessage}`);
       throw new Error(errorMessage);
+    }
+
+    // Delete label
+    const result = await this.repository.delete(params);
+
+    // Mark serial as unclaimed so it can be re-used
+    const serial = await this.repository.readSerialByNumber({
+      serialNumber: existing.serialNumber,
+    });
+
+    if (serial) {
+      await this.repository.updateSerial({
+        id: serial.id,
+        data: {
+          isClaimed: false,
+          labelId: null,
+          claimedAt: null,
+        },
+      });
+      this.logger.debug(
+        `delete(${jts(params)}): Serial ${existing.serialNumber} marked as unclaimed`,
+      );
     }
 
     this.logger.debug(`delete(${jts(params)}) -> ${jts(result)}`);
@@ -236,8 +258,8 @@ export class LabelService {
     ownerId: string;
     report: GatewayLabelReport;
   }) {
-    // Find label by serial number
-    const existingLabel = await this.repository.readBySerialNumber({
+    // Find label by serial number (supports prefix match for Arduino short serials)
+    const existingLabel = await this.repository.readBySerialNumberOrPrefix({
       serialNumber: params.report.serialNumber,
     });
 
@@ -257,13 +279,14 @@ export class LabelService {
       return null;
     }
 
-    // Update label with gateway report data
+    // Update label with gateway report data (use full serial from DB)
     const result = await this.repository.updateBySerialNumber({
-      serialNumber: params.report.serialNumber,
+      serialNumber: existingLabel.serialNumber,
       data: {
         gatewayId: params.gatewayId,
         status: params.report.status,
         batteryPercent: params.report.batteryPercent,
+        rssi: params.report.rssi,
         lastError: params.report.lastError,
         lastSeenAt: new Date(),
         displayWidth: params.report.displayWidth,

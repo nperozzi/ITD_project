@@ -15,6 +15,11 @@ import { auth } from "@/lib/better-auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+export const metadata = {
+  title: "ESL Manager",
+  description: "Manage your electronic shelf labels with ease.",
+};
+
 export default async function MainLayout({
   children,
 }: {

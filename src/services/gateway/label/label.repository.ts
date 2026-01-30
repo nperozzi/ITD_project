@@ -4,7 +4,7 @@ import { db } from "@/database";
 import { label, labelSerial } from "@/database/schema";
 import Logger from "@/lib/logger";
 import { jts } from "@/lib/utils";
-import { and, eq } from "drizzle-orm";
+import { and, eq, like } from "drizzle-orm";
 
 /**
  * Repository for label and label serial database operations.
@@ -113,6 +113,43 @@ export class LabelRepository {
     });
 
     this.logger.debug(`readBySerialNumber(${jts(params)}) -> ${jts(result)}`);
+    return result;
+  }
+
+  /**
+   * Find a label by serial number or prefix.
+   * If exact match not found, tries prefix match (for Arduino short serials).
+   */
+  async readBySerialNumberOrPrefix(params: { serialNumber: string }) {
+    // First try exact match
+    let result = await db.query.label.findFirst({
+      where: eq(label.serialNumber, params.serialNumber),
+      with: {
+        product: true,
+        gateway: true,
+      },
+    });
+
+    // If not found and serial is short (8 chars), try prefix match
+    if (!result && params.serialNumber.length === 8) {
+      result = await db.query.label.findFirst({
+        where: like(label.serialNumber, `${params.serialNumber}%`),
+        with: {
+          product: true,
+          gateway: true,
+        },
+      });
+
+      if (result) {
+        this.logger.debug(
+          `readBySerialNumberOrPrefix: Matched ${params.serialNumber} to ${result.serialNumber}`,
+        );
+      }
+    }
+
+    this.logger.debug(
+      `readBySerialNumberOrPrefix(${jts(params)}) -> ${jts(result)}`,
+    );
     return result;
   }
 

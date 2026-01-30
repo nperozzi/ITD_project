@@ -16,21 +16,21 @@ const logger = new Logger("GatewayClaimAPI");
  * @query serialNumber - The serial number of the gateway device
  *
  * @returns
- * - 200: { claimed: false } - Gateway is valid but not yet claimed
- * - 200: { claimed: true, apiKey: string } - Gateway is claimed, use apiKey for sync
+ * - 200: { status: "unclaimed" } - Gateway is valid but not yet claimed
+ * - 200: { status: "claimed", apiKey: string, gatewayId: string, name: string, ownerId: string } - Gateway is claimed
+ * - 200: { status: "invalid", message: string } - Serial number not found in system
  * - 400: { error: string } - Invalid request (missing serial number)
- * - 404: { error: string } - Serial number not found in system
  * - 500: { error: string } - Server error
  *
  * @example
  * // Gateway polling for claim status
- * GET /api/gateway/claim?serialNumber=GW-ABCD-1234
+ * GET /api/gateway/claim?serialNumber=89de18d6-d7af-471b-9858-f3a22f3db368
  *
  * // Response when unclaimed:
- * { "claimed": false }
+ * { "status": "unclaimed" }
  *
  * // Response when claimed:
- * { "claimed": true, "apiKey": "gw_abc123..." }
+ * { "status": "claimed", "apiKey": "gw_abc123...", "gatewayId": "...", "name": "My Gateway", "ownerId": "..." }
  */
 export async function GET(request: NextRequest) {
   try {
@@ -49,27 +49,32 @@ export async function GET(request: NextRequest) {
 
     // Check claim status
     const status = await gatewayService.checkSerialStatus({
-      serialNumber: validation.data.serialNumber,
+      serialNumber: validation.data.serialNumber.toLowerCase(),
     });
 
     if (!status.valid) {
       logger.warn(`Unknown serial number: ${serialNumber}`);
-      return NextResponse.json(
-        { error: "Serial number not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({
+        status: "invalid",
+        message: "Serial number not registered in the system",
+      });
     }
 
     if (status.claimed && status.gateway) {
       logger.debug(`Gateway ${serialNumber} is claimed`);
+
+      // Gateway info is already included in status from checkSerialStatus
       return NextResponse.json({
-        claimed: true,
+        status: "claimed",
         apiKey: status.gateway.apiKey,
+        gatewayId: status.gateway.id,
+        name: status.gateway.name ?? "Unnamed Gateway",
+        ownerId: status.gateway.ownerId,
       });
     }
 
     logger.debug(`Gateway ${serialNumber} is not claimed`);
-    return NextResponse.json({ claimed: false });
+    return NextResponse.json({ status: "unclaimed" });
   } catch (error) {
     logger.error(`Error checking claim status: ${error}`);
     return NextResponse.json(

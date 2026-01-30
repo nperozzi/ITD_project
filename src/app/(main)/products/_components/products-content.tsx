@@ -149,169 +149,23 @@ const defaultFormData: ProductFormData = {
   discountValidUntil: "",
 };
 
-export function ProductsContent() {
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [formData, setFormData] = useState<ProductFormData>(defaultFormData);
-  const [editingProductId, setEditingProductId] = useState<string | null>(null);
-
-  const utils = api.useUtils();
-  const { data: products, isLoading } = api.product.readAll.useQuery();
-
-  const createMutation = api.product.create.useMutation({
-    onSuccess: () => {
-      toast.success("Product created successfully!");
-      setIsAddOpen(false);
-      setFormData(defaultFormData);
-      utils.product.readAll.invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const updateMutation = api.product.update.useMutation({
-    onSuccess: () => {
-      toast.success("Product updated successfully!");
-      setIsEditOpen(false);
-      setEditingProductId(null);
-      setFormData(defaultFormData);
-      utils.product.readAll.invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const deleteMutation = api.product.delete.useMutation({
-    onSuccess: () => {
-      toast.success("Product deleted successfully!");
-      utils.product.readAll.invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const buildPriceDetails = (): ProductPriceDetails => {
-    const currency =
-      CURRENCIES.find((c) => c.code === formData.currency) || CURRENCIES[0]!;
-    const priceValue = parseFloat(formData.price) || 0;
-    const priceInCents = Math.round(
-      priceValue * Math.pow(10, currency.decimalPlaces),
-    );
-
-    const priceDetails: ProductPriceDetails = {
-      currency: {
-        code: currency.code,
-        symbol: currency.symbol,
-        decimalPlaces: currency.decimalPlaces,
-      },
-      priceInCents,
-      priceUnit: formData.priceUnit as ProductPriceDetails["priceUnit"],
-      quantity: parseFloat(formData.quantity) || 1,
-      quantityUnit:
-        formData.quantityUnit as ProductPriceDetails["quantityUnit"],
-    };
-
-    if (formData.discountPercentage && formData.discountValidUntil) {
-      priceDetails.discount = {
-        percentage: parseFloat(formData.discountPercentage),
-        validUntil: formData.discountValidUntil,
-      };
-    }
-
-    return priceDetails;
-  };
-
-  const handleCreate = () => {
-    if (!formData.name.trim()) {
-      toast.error("Please enter a product name");
-      return;
-    }
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      toast.error("Please enter a valid price");
-      return;
-    }
-
-    createMutation.mutate({
-      name: formData.name.trim(),
-      brand: formData.brand.trim() || undefined,
-      barcode: formData.barcode.trim() || undefined,
-      sku: formData.sku.trim() || undefined,
-      description: formData.description.trim() || undefined,
-      priceDetails: buildPriceDetails(),
-    });
-  };
-
-  const handleUpdate = () => {
-    if (!editingProductId) return;
-    if (!formData.name.trim()) {
-      toast.error("Please enter a product name");
-      return;
-    }
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      toast.error("Please enter a valid price");
-      return;
-    }
-
-    updateMutation.mutate({
-      id: editingProductId,
-      name: formData.name.trim(),
-      brand: formData.brand.trim() || null,
-      barcode: formData.barcode.trim() || null,
-      sku: formData.sku.trim() || null,
-      description: formData.description.trim() || null,
-      priceDetails: buildPriceDetails(),
-    });
-  };
-
-  const openEditDialog = (product: NonNullable<typeof products>[number]) => {
-    const pd = product.priceDetails as ProductPriceDetails;
-    const priceValue =
-      pd.priceInCents / Math.pow(10, pd.currency.decimalPlaces);
-
-    setFormData({
-      name: product.name,
-      brand: product.brand || "",
-      barcode: product.barcode || "",
-      sku: product.sku || "",
-      description: product.description || "",
-      currency: pd.currency.code,
-      price: priceValue.toString(),
-      priceUnit: pd.priceUnit,
-      quantity: pd.quantity.toString(),
-      quantityUnit: pd.quantityUnit,
-      discountPercentage: pd.discount?.percentage.toString() || "",
-      discountValidUntil: pd.discount?.validUntil || "",
-    });
-    setEditingProductId(product.id);
-    setIsEditOpen(true);
-  };
-
-  const formatPrice = (priceDetails: ProductPriceDetails) => {
-    const value =
-      priceDetails.priceInCents /
-      Math.pow(10, priceDetails.currency.decimalPlaces);
-    const formatted = value.toFixed(priceDetails.currency.decimalPlaces);
-    const prefix = priceDetails.currency.symbol.prefix || "";
-    const suffix = priceDetails.currency.symbol.suffix || "";
-    return `${prefix}${formatted}${suffix}`;
-  };
-
-  const updateFormField = (field: keyof ProductFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const ProductForm = ({
-    onSubmit,
-    submitLabel,
-    isPending,
-  }: {
-    onSubmit: () => void;
-    submitLabel: string;
-    isPending: boolean;
-  }) => (
+// ProductForm component moved outside to prevent recreation on each render
+function ProductForm({
+  formData,
+  updateFormField,
+  onSubmit,
+  onCancel,
+  submitLabel,
+  isPending,
+}: {
+  formData: ProductFormData;
+  updateFormField: (field: keyof ProductFormData, value: string) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
+  submitLabel: string;
+  isPending: boolean;
+}) {
+  return (
     <div className="grid max-h-[60vh] gap-4 overflow-y-auto py-4 pr-2">
       {/* Basic Info */}
       <div className="grid gap-4 md:grid-cols-2">
@@ -490,15 +344,7 @@ export function ProductsContent() {
       </div>
 
       <DialogFooter className="pt-4">
-        <Button
-          variant="outline"
-          onClick={() => {
-            setIsAddOpen(false);
-            setIsEditOpen(false);
-            setFormData(defaultFormData);
-            setEditingProductId(null);
-          }}
-        >
+        <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
         <Button onClick={onSubmit} disabled={isPending}>
@@ -507,6 +353,168 @@ export function ProductsContent() {
       </DialogFooter>
     </div>
   );
+}
+
+export function ProductsContent() {
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [formData, setFormData] = useState<ProductFormData>(defaultFormData);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+
+  const utils = api.useUtils();
+  const { data: products, isLoading } = api.product.readAll.useQuery();
+
+  const createMutation = api.product.create.useMutation({
+    onSuccess: () => {
+      toast.success("Product created successfully!");
+      setIsAddOpen(false);
+      setFormData(defaultFormData);
+      utils.product.readAll.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const updateMutation = api.product.update.useMutation({
+    onSuccess: () => {
+      toast.success("Product updated successfully!");
+      setIsEditOpen(false);
+      setEditingProductId(null);
+      setFormData(defaultFormData);
+      utils.product.readAll.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteMutation = api.product.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Product deleted successfully!");
+      utils.product.readAll.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const buildPriceDetails = (): ProductPriceDetails => {
+    const currency =
+      CURRENCIES.find((c) => c.code === formData.currency) || CURRENCIES[0]!;
+    const priceValue = parseFloat(formData.price) || 0;
+    const priceInCents = Math.round(
+      priceValue * Math.pow(10, currency.decimalPlaces),
+    );
+
+    const priceDetails: ProductPriceDetails = {
+      currency: {
+        code: currency.code,
+        symbol: currency.symbol,
+        decimalPlaces: currency.decimalPlaces,
+      },
+      priceInCents,
+      priceUnit: formData.priceUnit as ProductPriceDetails["priceUnit"],
+      quantity: parseFloat(formData.quantity) || 1,
+      quantityUnit:
+        formData.quantityUnit as ProductPriceDetails["quantityUnit"],
+    };
+
+    if (formData.discountPercentage && formData.discountValidUntil) {
+      priceDetails.discount = {
+        percentage: parseFloat(formData.discountPercentage),
+        validUntil: formData.discountValidUntil,
+      };
+    }
+
+    return priceDetails;
+  };
+
+  const handleCreate = () => {
+    if (!formData.name.trim()) {
+      toast.error("Please enter a product name");
+      return;
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+
+    createMutation.mutate({
+      name: formData.name.trim(),
+      brand: formData.brand.trim() || undefined,
+      barcode: formData.barcode.trim() || undefined,
+      sku: formData.sku.trim() || undefined,
+      description: formData.description.trim() || undefined,
+      priceDetails: buildPriceDetails(),
+    });
+  };
+
+  const handleUpdate = () => {
+    if (!editingProductId) return;
+    if (!formData.name.trim()) {
+      toast.error("Please enter a product name");
+      return;
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+
+    updateMutation.mutate({
+      id: editingProductId,
+      name: formData.name.trim(),
+      brand: formData.brand.trim() || null,
+      barcode: formData.barcode.trim() || null,
+      sku: formData.sku.trim() || null,
+      description: formData.description.trim() || null,
+      priceDetails: buildPriceDetails(),
+    });
+  };
+
+  const openEditDialog = (product: NonNullable<typeof products>[number]) => {
+    const pd = product.priceDetails as ProductPriceDetails;
+    const priceValue =
+      pd.priceInCents / Math.pow(10, pd.currency.decimalPlaces);
+
+    setFormData({
+      name: product.name,
+      brand: product.brand || "",
+      barcode: product.barcode || "",
+      sku: product.sku || "",
+      description: product.description || "",
+      currency: pd.currency.code,
+      price: priceValue.toString(),
+      priceUnit: pd.priceUnit,
+      quantity: pd.quantity.toString(),
+      quantityUnit: pd.quantityUnit,
+      discountPercentage: pd.discount?.percentage.toString() || "",
+      discountValidUntil: pd.discount?.validUntil || "",
+    });
+    setEditingProductId(product.id);
+    setIsEditOpen(true);
+  };
+
+  const formatPrice = (priceDetails: ProductPriceDetails) => {
+    const value =
+      priceDetails.priceInCents /
+      Math.pow(10, priceDetails.currency.decimalPlaces);
+    const formatted = value.toFixed(priceDetails.currency.decimalPlaces);
+    const prefix = priceDetails.currency.symbol.prefix || "";
+    const suffix = priceDetails.currency.symbol.suffix || "";
+    return `${prefix}${formatted}${suffix}`;
+  };
+
+  const updateFormField = (field: keyof ProductFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCancel = () => {
+    setIsAddOpen(false);
+    setIsEditOpen(false);
+    setFormData(defaultFormData);
+    setEditingProductId(null);
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -534,7 +542,10 @@ export function ProductsContent() {
               </DialogDescription>
             </DialogHeader>
             <ProductForm
+              formData={formData}
+              updateFormField={updateFormField}
               onSubmit={handleCreate}
+              onCancel={handleCancel}
               submitLabel="Create Product"
               isPending={createMutation.isPending}
             />
@@ -701,7 +712,10 @@ export function ProductsContent() {
             <DialogDescription>Update product information.</DialogDescription>
           </DialogHeader>
           <ProductForm
+            formData={formData}
+            updateFormField={updateFormField}
             onSubmit={handleUpdate}
+            onCancel={handleCancel}
             submitLabel="Save Changes"
             isPending={updateMutation.isPending}
           />

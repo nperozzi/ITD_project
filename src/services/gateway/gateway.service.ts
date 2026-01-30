@@ -43,7 +43,7 @@ class GatewayService {
   async createSerial(params: { serialNumber: string; notes?: string }) {
     // Check if serial already exists
     const existing = await this.repository.readSerialByNumber({
-      serialNumber: params.serialNumber,
+      serialNumber: params.serialNumber.toLowerCase(),
     });
 
     if (existing) {
@@ -53,7 +53,7 @@ class GatewayService {
     }
 
     const result = await this.repository.createSerial({
-      serialNumber: params.serialNumber,
+      serialNumber: params.serialNumber.toLowerCase(),
       notes: params.notes,
     });
 
@@ -67,7 +67,7 @@ class GatewayService {
    */
   async checkSerialStatus(params: { serialNumber: string }) {
     const serial = await this.repository.readSerialByNumber({
-      serialNumber: params.serialNumber,
+      serialNumber: params.serialNumber.toLowerCase(),
     });
 
     if (!serial) {
@@ -79,7 +79,7 @@ class GatewayService {
 
     if (serial.isClaimed && serial.gatewayId) {
       const gateway = await this.repository.readBySerialNumber({
-        serialNumber: params.serialNumber,
+        serialNumber: params.serialNumber.toLowerCase(),
       });
 
       this.logger.debug(
@@ -88,7 +88,14 @@ class GatewayService {
       return {
         valid: true,
         claimed: true,
-        gateway: gateway ? { id: gateway.id, apiKey: gateway.apiKey } : null,
+        gateway: gateway
+          ? {
+              id: gateway.id,
+              apiKey: gateway.apiKey,
+              name: gateway.name,
+              ownerId: gateway.ownerId,
+            }
+          : null,
       };
     }
 
@@ -139,7 +146,7 @@ class GatewayService {
     // Create gateway record
     const gateway = await this.repository.create({
       name: params.name,
-      serialNumber: params.serialNumber,
+      serialNumber: params.serialNumber.toLowerCase(),
       ownerId: params.ownerId,
       apiKey,
     });
@@ -222,8 +229,24 @@ class GatewayService {
     // Delete gateway
     const result = await this.repository.delete(params);
 
-    // Optionally: Mark serial as unclaimed for re-use
-    // (You might want to keep it claimed for audit purposes)
+    // Mark serial as unclaimed so it can be re-used
+    const serial = await this.repository.readSerialByNumber({
+      serialNumber: existing.serialNumber,
+    });
+
+    if (serial) {
+      await this.repository.updateSerial({
+        id: serial.id,
+        data: {
+          isClaimed: false,
+          gatewayId: null,
+          claimedAt: null,
+        },
+      });
+      this.logger.debug(
+        `delete(${jts(params)}): Serial ${existing.serialNumber} marked as unclaimed`,
+      );
+    }
 
     this.logger.debug(`delete(${jts(params)}) -> ${jts(result)}`);
     return result;

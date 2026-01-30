@@ -74,7 +74,12 @@ export function GatewaysContent() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const utils = api.useUtils();
-  const { data: gateways, isLoading } = api.gateway.readAll.useQuery();
+  const { data: gateways, isLoading } = api.gateway.readAll.useQuery(
+    undefined,
+    {
+      refetchInterval: 5000, // Auto-refresh every 5 seconds
+    },
+  );
 
   const claimMutation = api.gateway.claim.useMutation({
     onSuccess: () => {

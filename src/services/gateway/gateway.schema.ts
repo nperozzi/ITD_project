@@ -162,6 +162,8 @@ export const label = sqlite.sqliteTable("label", {
     .default("pending"),
   /** Battery percentage (0-100), null if unknown */
   batteryPercent: sqlite.integer("battery_percent"),
+  /** Signal strength (RSSI in dBm), null if unknown */
+  rssi: sqlite.integer("rssi"),
   /** Last error message if status is 'error' */
   lastError: sqlite.text("last_error"),
   /** Last time the label was updated successfully */

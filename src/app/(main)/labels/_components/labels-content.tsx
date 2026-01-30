@@ -65,6 +65,7 @@ import {
   Package,
   Pencil,
   Plus,
+  Radio,
   Router,
   Tag,
   Trash2,
@@ -89,6 +90,65 @@ const statusConfig: Record<
   updating: { label: "Updating", variant: "outline", icon: Loader2 },
 };
 
+function getSignalStrength(rssi: number | null): {
+  label: string;
+  color: string;
+  bars: number;
+} {
+  if (rssi === null) {
+    return { label: "Unknown", color: "text-muted-foreground", bars: 0 };
+  }
+
+  // RSSI ranges (dBm):
+  // Excellent: > -50
+  // Good: -50 to -60
+  // Fair: -60 to -70
+  // Weak: -70 to -80
+  // Very Weak: < -80
+
+  if (rssi > -50) {
+    return { label: "Excellent", color: "text-green-500", bars: 4 };
+  } else if (rssi > -60) {
+    return { label: "Good", color: "text-green-500", bars: 3 };
+  } else if (rssi > -70) {
+    return { label: "Fair", color: "text-yellow-500", bars: 2 };
+  } else if (rssi > -80) {
+    return { label: "Weak", color: "text-orange-500", bars: 1 };
+  } else {
+    return { label: "Very Weak", color: "text-red-500", bars: 1 };
+  }
+}
+
+function SignalIndicator({ rssi }: { rssi: number | null }) {
+  const signal = getSignalStrength(rssi);
+
+  if (signal.bars === 0) {
+    return (
+      <div className="flex items-center gap-2">
+        <Radio className="text-muted-foreground h-4 w-4" />
+        <span className="text-muted-foreground text-sm">-</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex gap-0.5">
+        {[1, 2, 3, 4].map((bar) => (
+          <div
+            key={bar}
+            className={`w-1 rounded-sm ${
+              bar <= signal.bars ? signal.color : "bg-muted"
+            }`}
+            style={{ height: `${bar * 3 + 2}px` }}
+          />
+        ))}
+      </div>
+      <span className={`text-xs ${signal.color}`}>{rssi} dBm</span>
+    </div>
+  );
+}
+
 export function LabelsContent() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -109,7 +169,12 @@ export function LabelsContent() {
   );
 
   const utils = api.useUtils();
-  const { data: labels, isLoading } = api.gateway.readAllLabels.useQuery();
+  const { data: labels, isLoading } = api.gateway.readAllLabels.useQuery(
+    undefined,
+    {
+      refetchInterval: 5000, // Auto-refresh every 5 seconds
+    },
+  );
   const { data: products } = api.product.readActive.useQuery();
 
   const registerMutation = api.gateway.registerLabel.useMutation({
@@ -313,6 +378,7 @@ export function LabelsContent() {
                   <TableHead>Name</TableHead>
                   <TableHead>Serial Number</TableHead>
                   <TableHead>Product</TableHead>
+                  <TableHead>Signal</TableHead>
                   <TableHead>Battery</TableHead>
                   <TableHead>Gateway</TableHead>
                   <TableHead>Last Seen</TableHead>
@@ -368,6 +434,9 @@ export function LabelsContent() {
                             Assign Product
                           </Button>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <SignalIndicator rssi={label.rssi} />
                       </TableCell>
                       <TableCell>
                         {label.batteryPercent !== null ? (

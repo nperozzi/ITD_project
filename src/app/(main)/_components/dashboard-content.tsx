@@ -28,11 +28,17 @@ interface DashboardContentProps {
 
 export function DashboardContent({ userName }: DashboardContentProps) {
   const { data: gateways, isLoading: gatewaysLoading } =
-    api.gateway.readAll.useQuery();
+    api.gateway.readAll.useQuery(undefined, {
+      refetchInterval: 5000, // Auto-refresh every 5 seconds
+    });
   const { data: labels, isLoading: labelsLoading } =
-    api.gateway.readAllLabels.useQuery();
+    api.gateway.readAllLabels.useQuery(undefined, {
+      refetchInterval: 5000, // Auto-refresh every 5 seconds
+    });
   const { data: products, isLoading: productsLoading } =
-    api.product.readAll.useQuery();
+    api.product.readAll.useQuery(undefined, {
+      refetchInterval: 5000, // Auto-refresh every 5 seconds
+    });
 
   const onlineGateways = gateways?.filter((g) => g.isOnline).length || 0;
   const onlineLabels = labels?.filter((l) => l.status === "online").length || 0;

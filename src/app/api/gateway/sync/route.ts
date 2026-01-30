@@ -84,6 +84,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    logger.info(`Sync request with API key: ${apiKey.substring(0, 10)}...`);
+
     // Parse and validate request body
     const body = await request.json();
     const validation = gatewaySyncValidator.safeParse(body);

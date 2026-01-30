@@ -66,6 +66,7 @@ export const deleteGatewayValidator = z.object({
 export const gatewayLabelReportSchema = z.object({
   serialNumber: z.string(),
   batteryPercent: z.number().min(0).max(100).optional(),
+  rssi: z.number().int().optional(),
   status: z.enum(["online", "offline", "error", "updating"]),
   lastError: z.string().optional(),
   displayWidth: z.number().optional(),

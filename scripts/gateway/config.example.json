@@ -1,0 +1,9 @@
+{
+  "server_url": "https://esl.hazhir.dev",
+  "serial_number": "YOUR-GATEWAY-SERIAL-UUID-HERE",
+  "api_key": null,
+  "sync_interval_seconds": 30,
+  "claim_check_interval_seconds": 10,
+  "firmware_version": "1.0.0",
+  "ble_scan_timeout": 10.0
+}
