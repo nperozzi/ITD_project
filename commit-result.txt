@@ -1,0 +1,1 @@
+[main 7ef45e6] Merge v0 branch with original main - combined documentation and gitignore

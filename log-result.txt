@@ -1,0 +1,11 @@
+*   7ef45e6 Merge v0 branch with original main - combined documentation and gitignore
+|\  
+| * dca07ac Delete README.md
+| * 21da5c4 v1
+| * 071544b v1
+| * e0ca84b checkpoint
+| * 177622a change .gitignore to include local.db
+| * 76fe5b5 forgor db/index.ts & refactor boilerplate services
+| * 2d27756 update auth stuff & update to sqlite by default
+| * 35a6d74 sliht changes
+| * d6e0387 fix: auth pages & route aliases
