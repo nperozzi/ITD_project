@@ -11,3 +11,5 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Command to be invoked when the container gets started
+ENTRYPOINT ["python", "backend.py"]
