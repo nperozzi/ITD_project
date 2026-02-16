@@ -1,5 +1,13 @@
+
+# Fetch image
 FROM python:3.12-slim
-WORKDIR /app
-RUN pip install paho-mqtt
-COPY backend.py .
-CMD ["python", "backend.py"]
+
+# Set working directory
+WORKDIR /src
+
+# Copy requirements first
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
