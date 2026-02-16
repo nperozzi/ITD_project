@@ -10,6 +10,15 @@ client = mqtt.Client(
     callback_api_version=mqtt.CallbackAPIVersion.VERSION2
 )
 
+# App and SocketIO instances (will be set by backend.py)
+app = None
+socketio = None
+
+def set_app_and_socketio(flask_app, sio):
+    global app, socketio
+    app = flask_app
+    socketio = sio
+
 def on_connect(client, userdata, flags, rc, properties=None):
     print("Backend connected to broker")
     sys.stdout.flush()
@@ -22,12 +31,16 @@ def on_message(client, userdata, message):
     print(f"Received: {message.topic} {payload}")
     sys.stdout.flush()
 
-    # Write to the state file.
+    # Write to the state file and emit via WebSocket.
     try:
         data = json.loads(payload)
         if "battery" in data:
             import state
             state.latest_battery = data["battery"]
+            # Emit battery update to all connected clients
+            if app and socketio:
+                with app.app_context():
+                    socketio.emit("battery_update", {"battery": data["battery"]})
     except (json.JSONDecodeError, KeyError):
         pass
 

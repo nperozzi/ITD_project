@@ -1,2 +1,4 @@
-flask
+flask   
+flask-socketio
 paho-mqtt
+python-socketio

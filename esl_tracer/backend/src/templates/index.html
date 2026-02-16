@@ -1,23 +1,43 @@
 <h1>ESL Control</h1>
 
-<form method="post" action="/set_price">
-    <input name="price" placeholder="Enter price">
+<form id="priceForm">
+    <input id="priceInput" name="price" placeholder="Enter price">
     <button type="submit">Send</button>
 </form>
 
 <h2>Battery Level</h2>
 <div id="battery">Loading...</div>
 
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script>
-function fetchBattery() {
-    fetch("/battery")
-        .then(r => r.json())
-        .then(data => {
-            document.getElementById("battery").innerText =
-                data.battery ?? "No data";
-        });
-}
+const socket = io();
 
-setInterval(fetchBattery, 2000);
-fetchBattery();
+socket.on("connect", () => {
+    console.log("Connected to server");
+});
+
+socket.on("battery_update", (data) => {
+    console.log("Battery update:", data);
+    document.getElementById("battery").innerText =
+        data.battery ?? "No data";
+});
+
+socket.on("disconnect", () => {
+    console.log("Disconnected from server");
+});
+
+document.getElementById("priceForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const price = document.getElementById("priceInput").value;
+    
+    fetch("/set_price", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `price=${encodeURIComponent(price)}`
+    }).then(r => r.text())
+      .then(data => {
+          console.log("Price sent:", price);
+          document.getElementById("priceInput").value = "";
+      });
+});
 </script>
