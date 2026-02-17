@@ -2,19 +2,17 @@ import json
 import sys
 import paho.mqtt.client as mqtt
 from state import latest_battery
+import state
 
 BROKER = "mosquitto"
 PORT = 1883
 
-client = mqtt.Client(
-    callback_api_version=mqtt.CallbackAPIVersion.VERSION2
-)
-
-# App and SocketIO instances (will be set by backend.py)
 app = None
 socketio = None
 
-def set_app_and_socketio(flask_app, sio):
+client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
+
+def set_app_and_socketio(flask_app, sio): # App and SocketIO instances (will be set by backend.py with this function)
     global app, socketio
     app = flask_app
     socketio = sio
@@ -33,20 +31,18 @@ def publish_price(price):
 def on_connect(client, userdata, flags, rc, properties=None): # MQTT_client on_connect callback:
     print("Backend connected to broker")
     sys.stdout.flush()
+    
     client.subscribe("b-g/tag1/battery")
 
-def on_message(client, userdata, message):
+def on_message(client, userdata, message):  # MQTT_client on_message callback:
     global latest_battery
 
     payload = message.payload.decode()
-    print(f"Received: {message.topic} {payload}")
-    sys.stdout.flush()
 
     # Write to the state file and emit via WebSocket.
     try:
         data = json.loads(payload)
         if "battery" in data:
-            import state
             state.latest_battery = data["battery"]
             # Emit battery update to all connected clients
             if app and socketio:
