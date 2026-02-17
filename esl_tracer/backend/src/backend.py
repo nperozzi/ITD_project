@@ -2,6 +2,7 @@ from flask import Flask
 from flask_socketio import SocketIO
 from routes import api
 from socketio_handlers import register_socketio_handlers
+from mqtt_client import mqtt_client_connect, set_app, set_socketio
 import state
 
 # Creates Flask app
@@ -16,7 +17,8 @@ register_socketio_handlers(socketio, state)
 app.register_blueprint(api)
 
 # Pass app and socketio instances to mqtt_client.py
-set_app_and_socketio(app, socketio)
+set_app(app)
+set_socketio(socketio)
 
 def main():
     mqtt_client_connect()

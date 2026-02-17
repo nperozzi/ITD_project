@@ -12,9 +12,12 @@ socketio = None
 
 client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
 
-def set_app_and_socketio(flask_app, sio): # App and SocketIO instances (will be set by backend.py with this function)
-    global app, socketio
+def set_app(flask_app): # App instances (will be set by backend.py with this function)
+    global app
     app = flask_app
+
+def set_socketio(sio): # SocketIO instances (will be set by backend.py with this function)
+    global socketio
     socketio = sio
 
 def mqtt_client_connect():
