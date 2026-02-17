@@ -19,7 +19,18 @@ def set_app_and_socketio(flask_app, sio):
     app = flask_app
     socketio = sio
 
-def on_connect(client, userdata, flags, rc, properties=None):
+def mqtt_client_connect():
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect(BROKER, PORT, 60)
+    client.loop_start()
+
+def publish_price(price):
+    payload = json.dumps({"price": price})
+    topic = f"b-g/tag1/price"
+    client.publish(topic, payload, retain=True)
+
+def on_connect(client, userdata, flags, rc, properties=None): # MQTT_client on_connect callback:
     print("Backend connected to broker")
     sys.stdout.flush()
     client.subscribe("b-g/tag1/battery")
@@ -43,14 +54,3 @@ def on_message(client, userdata, message):
                     socketio.emit("battery_update", {"battery": data["battery"]})
     except (json.JSONDecodeError, KeyError):
         pass
-
-def start():
-    client.on_connect = on_connect
-    client.on_message = on_message
-    client.connect(BROKER, PORT, 60)
-    client.loop_start()
-
-def publish_price(price):
-    payload = json.dumps({"price": price})
-    topic = f"b-g/tag1/price"
-    client.publish(topic, payload, retain=True)
