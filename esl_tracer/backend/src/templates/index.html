@@ -34,10 +34,9 @@ document.getElementById("priceForm").addEventListener("submit", (e) => {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: `price=${encodeURIComponent(price)}`
-    }).then(r => r.text())
-      .then(data => {
-          console.log("Price sent:", price);
-          document.getElementById("priceInput").value = "";
+    }).then(data => {
+        console.log("Price sent:", price);
+        document.getElementById("priceInput").value = "";
       });
 });
 </script>

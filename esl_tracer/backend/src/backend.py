@@ -3,12 +3,17 @@ from flask_socketio import SocketIO
 from routes import api
 from mqtt_client import start, set_app_and_socketio
 
+# Creates Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
+
+#Initializes SocketIO
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+#Registers the Blueprint
 app.register_blueprint(api)
 
-# Pass app and socketio instances to mqtt_client
+# Pass app and socketio instances to mqtt_client.py
 set_app_and_socketio(app, socketio)
 
 def main():
