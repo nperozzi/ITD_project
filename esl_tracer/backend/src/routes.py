@@ -17,17 +17,3 @@ def set_price():
 @api.route("/battery")
 def battery():
     return jsonify({"battery": state.latest_battery})
-
-# SocketIO event handlers
-from flask_socketio import emit
-from backend import socketio
-
-@socketio.on("connect")
-def handle_connect():
-    print(f"Client connected")
-    # Send current battery value to the newly connected client
-    emit("battery_update", {"battery": state.latest_battery})
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    print(f"Client disconnected")
