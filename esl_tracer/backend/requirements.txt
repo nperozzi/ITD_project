@@ -1,4 +1,9 @@
+# Lib for implementing Flask web server.
 flask   
-flask-socketio
+
+# Lib to implement an mqtt-client
 paho-mqtt
+
+# Libs to implement WebSockets
+flask-socketio
 python-socketio
