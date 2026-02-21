@@ -7,6 +7,7 @@ import state
 BROKER = "mosquitto"
 PORT = 1883
 
+db = None
 app = None
 socketio = None
 
@@ -25,6 +26,14 @@ def mqtt_client_connect():
     client.on_message = on_message
     client.connect(BROKER, PORT, 60)
     client.loop_start()
+
+def set_db(db_instance):
+    global db
+    db = db_instance
+
+def set_db(db_instance):
+    global db
+    db = db_instance
 
 def publish_price(price):
     payload = json.dumps({"price": price})
