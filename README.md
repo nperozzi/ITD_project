@@ -1,4 +1,4 @@
-[TODO]: Write instructions on how to run the "tracer bullet code"
+
 
 # Electronic Shelves Label System
 ## How to run Docker Compose?
