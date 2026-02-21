@@ -1,8 +1,6 @@
 import json
 import sys
 import paho.mqtt.client as mqtt
-from state import latest_battery
-import state
 
 BROKER = "mosquitto"
 PORT = 1883
@@ -47,18 +45,23 @@ def on_connect(client, userdata, flags, rc, properties=None): # MQTT_client on_c
     client.subscribe("b-g/tag1/battery")
 
 def on_message(client, userdata, message):  # MQTT_client on_message callback:
-    global latest_battery
 
     payload = message.payload.decode()
 
-    # Write to the state file and emit via WebSocket.
+    # Store battery level in database and emit update from database
     try:
         data = json.loads(payload)
-        if "battery" in data:
-            state.latest_battery = data["battery"]
-            # Emit battery update to all connected clients
+
+        if "battery" in data and db:
+            db.set_tag(1, 1, data["battery"])
+
+            # Fetch battery from database and emit update
+            tag = db.get_tag(1)
+            battery = tag["battery_level"] if tag else None
+
             if app and socketio:
                 with app.app_context():
-                    socketio.emit("battery_update", {"battery": data["battery"]})
+                    socketio.emit("battery_update", {"battery": battery})
+                    
     except (json.JSONDecodeError, KeyError):
         pass

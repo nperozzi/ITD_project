@@ -8,7 +8,9 @@ def register_socketio_handlers(socketio: Any, state) -> None:
     @socketio.on("connect")
     def _handle_connect():
         current_app.logger.info("SocketIO client connected")
-        socketio.emit("battery_update", {"battery": getattr(state, "latest_battery", None)})
+        tag = state.get_tag(1) if state else None
+        battery = tag["battery_level"] if tag else None
+        socketio.emit("battery_update", {"battery": battery})
 
     @socketio.on("disconnect")
     def _handle_disconnect():
@@ -17,4 +19,6 @@ def register_socketio_handlers(socketio: Any, state) -> None:
     @socketio.on("request_battery")
     def _handle_request_battery():
         """Client asks for current battery value."""
-        socketio.emit("battery_update", {"battery": getattr(state, "latest_battery", None)})
+        tag = state.get_tag(1) if state else None
+        battery = tag["battery_level"] if tag else None
+        socketio.emit("battery_update", {"battery": battery})
