@@ -1,0 +1,11 @@
+# Flask web server (Flask 2.x is stable with Flask-SocketIO)
+Flask==2.3.3
+
+# MQTT client
+paho-mqtt==2.0.0
+
+# WebSockets
+Flask-SocketIO==5.3.6
+python-socketio==5.11.2
+python-engineio==4.9.0
+

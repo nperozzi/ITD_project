@@ -20,14 +20,14 @@ def main():
 def on_connect(client, userdata, flags, rc, properties=None):
     print("Tag connected")
     sys.stdout.flush()
-    client.subscribe("g-t/tag/123/update")
+    client.subscribe("g-t/tag1/price")
     time.sleep(0.5)
 
 def on_message(client, userdata, msg):
     data = json.loads(msg.payload.decode())
     print(f"Tag display updated: {data['price']}")
     sys.stdout.flush()
-    client.publish("g-t/tag/123/status", json.dumps({"battery": 95}), retain=True)
+    client.publish("g-t/tag1/battery", json.dumps({"battery": 95}), retain=True)
 
 
 if __name__ == "__main__":

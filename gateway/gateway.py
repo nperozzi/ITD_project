@@ -29,18 +29,18 @@ def on_connect(client, userdata, flags, rc, properties=None):
     print("Gateway connected")
     sys.stdout.flush()
     is_connected = True
-    client.subscribe("b-g/tag/+/update")
+    client.subscribe("b-g/tag1/price")
     time.sleep(0.5)
-    client.subscribe("g-t/tag/+/status")
+    client.subscribe("g-t/tag1/battery")
     time.sleep(0.5)
 
 def on_message(client, userdata, msg):
     topic = msg.topic
 
-    if topic.startswith("b-g/tag/") and topic.endswith("/update"):
+    if topic.startswith("b-g/tag1/"):
         forward_topic = topic.replace("b-g/", "g-t/", 1)
 
-    elif topic.startswith("g-t/tag/") and topic.endswith("/status"):
+    elif topic.startswith("g-t/tag1/"):
         forward_topic = topic.replace("g-t/", "b-g/", 1)
 
     else:
@@ -49,8 +49,6 @@ def on_message(client, userdata, msg):
     print(f"Gateway forwarding: {topic} -> {forward_topic}")
     sys.stdout.flush()
     client.publish(forward_topic, msg.payload)
-
-
 
 
 if __name__ == "__main__":
