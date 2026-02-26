@@ -4,23 +4,23 @@ services:
     ports:
       - "1883:1883"
     volumes:
-      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./infra/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
 
   backend:
-    build: ./backend
+    build: ./apps/backend
     ports:
-      - "5000:5000"  # Expose Flask port
-    volumes:                # We copy the volume for devlopment phase only.
-      - ./backend/src:/src
+      - "5000:5000"
+    volumes:
+      - ./apps/backend/src:/src
     depends_on:
       - mosquitto
 
   gateway:
-    build: ./gateway
+    build: ./apps/gateway
     depends_on:
       - mosquitto
 
   tag:
-    build: ./tag
+    build: ./apps/tag
     depends_on:
       - mosquitto

@@ -1,0 +1,18 @@
+{
+  "name": "esl-project",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Electronic shelf label project.",
+  "packageManager": "bun",
+  "scripts": {
+    "nx": "nx",
+    "graph": "nx graph",
+    "run-many": "nx run-many",
+    "show:projects": "nx show projects",
+    "compose:up": "DOCKER_CONFIG=.docker docker compose up --build",
+    "compose:down": "DOCKER_CONFIG=.docker docker compose down"
+  },
+  "devDependencies": {
+    "nx": "^20.0.0"
+  }
+}

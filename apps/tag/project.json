@@ -1,0 +1,25 @@
+{
+  "name": "tag",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/tag",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "DOCKER_CONFIG=.docker docker compose build tag"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "DOCKER_CONFIG=.docker docker compose up --build tag mosquitto"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python3 -m compileall apps/tag"
+      }
+    }
+  }
+}

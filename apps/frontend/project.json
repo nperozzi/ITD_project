@@ -1,0 +1,19 @@
+{
+  "name": "frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/frontend",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo 'Frontend service not implemented yet'"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo 'No frontend checks configured yet'"
+      }
+    }
+  }
+}

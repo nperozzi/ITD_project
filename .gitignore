@@ -2,4 +2,7 @@
 *.ini
 **/*.db
 **/__pycache__/
+node_modules/
+.nx/
+dist/
 

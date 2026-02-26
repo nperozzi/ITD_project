@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": ["docker-compose.yml", "nx.json", "package.json"]
+  },
+  "targetDefaults": {
+    "build": {
+      "inputs": ["default"]
+    },
+    "serve": {
+      "inputs": ["default"]
+    }
+  },
+  "defaultBase": "main"
+}
