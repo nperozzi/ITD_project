@@ -114,6 +114,7 @@ export function DashboardPage({
   const shelfLocationById = new Map(shelfLocations.map((shelfLocation) => [shelfLocation.id, shelfLocation]));
 
   const submitPrice = async (): Promise<void> => {
+    // Basic guard to avoid unnecessary network calls with empty values.
     if (!priceValue.trim()) {
       setPriceFeedback('Please enter a price value.');
       return;
@@ -122,6 +123,7 @@ export function DashboardPage({
     setIsSubmittingPrice(true);
     setPriceFeedback(null);
     try {
+      // Delegates to backend API client (`POST /set_price`).
       await setPrice(priceValue.trim());
       setPriceFeedback('Price update sent to the backend and gateway.');
       setPriceValue('');
@@ -226,6 +228,7 @@ export function DashboardPage({
         </div>
         <div className="rounded-lg border border-border bg-background p-4">
           <p className="text-sm text-muted-foreground">Latest battery report</p>
+          {/* Value comes from backend `/battery` + Socket.IO `battery_update` events. */}
           <p className="text-2xl font-semibold">{battery ?? 'No data'}{typeof battery === 'number' ? '%' : ''}</p>
         </div>
         <div className="flex items-center gap-2">

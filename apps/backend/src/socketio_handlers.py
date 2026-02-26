@@ -16,7 +16,7 @@ def register_socketio_handlers(socketio: Any, state) -> None:
         # Keep battery generation on backend (frontend displays this value only).
         battery = random.randint(1, 100)
         if state:
-            state.set_tag(1, 1, battery)
+            state.update_tag(1, 1, battery)
         socketio.emit("battery_update", {"battery": battery})
 
     @socketio.on("disconnect")
@@ -28,5 +28,5 @@ def register_socketio_handlers(socketio: Any, state) -> None:
         # Client manually requests current battery value from backend.
         battery = random.randint(1, 100)
         if state:
-            state.set_tag(1, 1, battery)
+            state.update_tag(1, 1, battery)
         socketio.emit("battery_update", {"battery": battery})

@@ -1,14 +1,17 @@
 # Backend
 
-Flask + Socket.IO service for the ESL system.
+The backend is the core application service of the ESL platform. It handles user-driven actions from the dashboard and coordinates live system behavior across other modules.
 
-## What it does
+## Role in the System
 
-- Serves HTTP + Socket.IO APIs for the frontend app
-- Publishes price updates over MQTT
-- Receives battery updates and pushes realtime UI events
+- Receives requests from the frontend and applies business logic.
+- Coordinates pricing and status events across connected services.
+- Acts as the central point for real-time updates that keep the UI current.
 
-## Useful commands (from repo root)
+## Why It Matters
 
-- `bun run nx run backend:serve`
-- `bun run nx run backend:check`
+This module is where system decisions are made. It translates user intent (for example, changing a price) into actions that can be delivered to label devices, while also collecting device state so operators can monitor health.
+
+## Audience
+
+New contributors should think of this module as the orchestration layer between the user interface, messaging flow, and device-facing behavior.

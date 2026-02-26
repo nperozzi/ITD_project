@@ -8,6 +8,7 @@ interface LiveBatteryState {
 }
 
 export function useLiveBattery(): LiveBatteryState {
+  // `battery` is always sourced from backend responses/events (no frontend randomization).
   const [battery, setBattery] = useState<number | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -20,6 +21,7 @@ export function useLiveBattery(): LiveBatteryState {
 
     const socket = io(socketUrl, {
       path: '/socket.io',
+      // Polling avoids websocket upgrade issues with the current backend runtime.
       transports: ['polling'],
       reconnection: true,
     });
@@ -42,6 +44,7 @@ export function useLiveBattery(): LiveBatteryState {
       if (!isMounted) {
         return;
       }
+      // Live updates come from backend Socket.IO events.
       setBattery(typeof data?.battery === 'number' ? data.battery : null);
     });
 
@@ -50,6 +53,7 @@ export function useLiveBattery(): LiveBatteryState {
         if (!isMounted) {
           return;
         }
+        // Seed UI with latest backend battery value before realtime events arrive.
         setBattery(typeof data.battery === 'number' ? data.battery : null);
       })
       .catch(() => {

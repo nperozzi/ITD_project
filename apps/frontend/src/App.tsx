@@ -41,6 +41,8 @@ function ErrorState({ message }: { message: string }): JSX.Element {
 
 export default function App(): JSX.Element {
   const [activePage, setActivePage] = useState<NavigationKey>('dashboard');
+
+  // Load each dashboard collection independently from backend.
   const { data: stores, error: storesError } = useStores();
   const { data: gateways, error: gatewaysError } = useGateways();
   const { data: shelfLocations, error: shelfLocationsError } = useShelfLocations();
@@ -50,6 +52,7 @@ export default function App(): JSX.Element {
   const { data: promotions, error: promotionsError } = usePromotions();
 
   const content = useMemo(() => {
+    // Show the first request error so the user has a clear actionable message.
     const firstError =
       storesError ??
       gatewaysError ??
@@ -63,6 +66,7 @@ export default function App(): JSX.Element {
       return <ErrorState message={firstError.message} />;
     }
 
+    // Keep a single loading state until all required datasets are available.
     if (!stores || !gateways || !shelfLocations || !products || !tags || !tagPayloads || !promotions) {
       return <LoadingState />;
     }

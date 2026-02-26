@@ -1,14 +1,17 @@
 # Tag Simulator
 
-Simulated electronic shelf label device.
+The tag module simulates electronic shelf label devices for development and validation. It allows teams to exercise device-facing behavior without relying on physical hardware.
 
-## What it does
+## Role in the System
 
-- Receives price messages
-- Prints updated display value
-- Publishes battery status back over MQTT
+- Represents how labels react to updates sent through the platform.
+- Emits device-like status signals to support monitoring and testing flows.
+- Enables end-to-end scenario checks during feature development.
 
-## Useful commands (from repo root)
+## Why It Matters
 
-- `bun run nx run tag:serve`
-- `bun run nx run tag:check`
+This module helps the team iterate quickly by providing a predictable stand-in for real tags. It reduces dependency on hardware availability during day-to-day work.
+
+## Audience
+
+New contributors should view this module as the development-time model of shelf labels within the larger ESL ecosystem.

@@ -9,6 +9,7 @@ import {
   fetchTags,
 } from '../data/backendApi';
 
+// These small wrappers keep component code simple and provide SWR caching per resource key.
 export function useStores() {
   return useSWR('stores', fetchStores);
 }

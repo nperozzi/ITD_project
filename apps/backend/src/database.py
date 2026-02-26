@@ -40,33 +40,6 @@ class BackendDB:
 			self.testing_records(DB_PATH)
 			
 			
-	def set_tag(self, tag_id: int, current_product_id: Optional[int], battery_level: Optional[int]):
-		# Upsert tag state in one query.
-		with sqlite3.connect(self.db_path) as db_connection:
-			cursor = db_connection.cursor()
-			cursor.execute('''
-				INSERT INTO tag (id, current_product_id, battery_level)
-				VALUES (?, ?, ?)
-				ON CONFLICT(id) DO UPDATE SET current_product_id=excluded.current_product_id, battery_level=excluded.battery_level
-			''', (tag_id, current_product_id, battery_level))
-			db_connection.commit()
-
-	def get_tag(self, tag_id: int) -> Optional[Dict[str, Any]]:
-		# Read one tag row and return a dictionary for caller convenience.
-		with sqlite3.connect(self.db_path) as db_connection:
-			cursor = db_connection.cursor()
-			cursor.execute('''
-				SELECT id, current_product_id, battery_level FROM tag WHERE id = ?
-			''', (tag_id,))
-			result = cursor.fetchone()
-			if result:
-				return {
-					'id': result[0],
-					'current_product_id': result[1],
-					'battery_level': result[2]
-				}
-			return None
-
 	def set_product_price(self, product_id: int, price: float):
 		# Update price for existing product.
 		with sqlite3.connect(self.db_path) as db_connection:
@@ -93,7 +66,34 @@ class BackendDB:
 				for row in results
 			]
 
-	def get_tags(self) -> list[Dict[str, Any]]:
+	def update_tag(self, tag_id: int, current_product_id: Optional[int], battery_level: Optional[int]):
+		# Upsert tag state in one query.
+		with sqlite3.connect(self.db_path) as db_connection:
+			cursor = db_connection.cursor()
+			cursor.execute('''
+				INSERT INTO tag (id, current_product_id, battery_level)
+				VALUES (?, ?, ?)
+				ON CONFLICT(id) DO UPDATE SET current_product_id=excluded.current_product_id, battery_level=excluded.battery_level
+			''', (tag_id, current_product_id, battery_level))
+			db_connection.commit()
+
+	def get_tag(self, tag_id: int) -> Optional[Dict[str, Any]]:
+		# Read one tag row and return a dictionary for caller convenience.
+		with sqlite3.connect(self.db_path) as db_connection:
+			cursor = db_connection.cursor()
+			cursor.execute('''
+				SELECT id, current_product_id, battery_level FROM tag WHERE id = ?
+			''', (tag_id,))
+			result = cursor.fetchone()
+			if result:
+				return {
+					'id': result[0],
+					'current_product_id': result[1],
+					'battery_level': result[2]
+				}
+			return None
+
+	def get_all_tags(self) -> list[Dict[str, Any]]:
 		# Return all tags as dictionaries.
 		with sqlite3.connect(self.db_path) as db_connection:
 			cursor = db_connection.cursor()

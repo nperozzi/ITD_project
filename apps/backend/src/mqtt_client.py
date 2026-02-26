@@ -74,7 +74,7 @@ def on_message(client, userdata, message):
         if "battery" in data and db:
             # Randomize on backend so UI always depends on backend-provided battery.
             battery = random.randint(1, 100)
-            db.set_tag(1, 1, battery)
+            db.update_tag(1, 1, battery)
 
             # Read persisted value and emit event through Socket.IO.
             tag = db.get_tag(1)

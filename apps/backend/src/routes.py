@@ -144,7 +144,7 @@ def battery():
     # Persist the generated value so other backend paths can read the latest state.
     db = current_app.config.get('db')
     if db:
-        db.set_tag(1, 1, battery)
+        db.update_tag(1, 1, battery)
 
     return jsonify({"battery": battery})
 
