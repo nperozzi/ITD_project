@@ -76,4 +76,3 @@ Enter a price and send it from the UI. You should see tag updates in logs, for e
 ```text
 tag-1  | Tag display updated: 1
 ```
-

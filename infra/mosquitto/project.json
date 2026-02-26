@@ -12,7 +12,7 @@
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "test -f infra/mosquitto/mosquitto.conf"
+        "command": "bun run scripts/check-file-exists.mjs infra/mosquitto/mosquitto.conf"
       }
     }
   }
