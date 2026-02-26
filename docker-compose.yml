@@ -1,25 +1,33 @@
 services:
+  # MQTT broker used by backend, gateway, and tag simulator.
   mosquitto:
     image: eclipse-mosquitto
     ports:
+      # Expose MQTT default port to host for local debugging tools if needed.
       - "1883:1883"
     volumes:
+      # Use repository-managed broker config.
       - ./infra/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
 
+  # Flask + Socket.IO backend service.
   backend:
     build: ./apps/backend
     ports:
+      # HTTP server exposed to browser.
       - "5000:5000"
     volumes:
+      # Mount source for faster local iteration during development.
       - ./apps/backend/src:/src
     depends_on:
       - mosquitto
 
+  # Topic bridge that forwards between backend-facing and tag-facing topics.
   gateway:
     build: ./apps/gateway
     depends_on:
       - mosquitto
 
+  # Simulated electronic shelf label device.
   tag:
     build: ./apps/tag
     depends_on:

@@ -6,7 +6,9 @@ This repository is organized as a monorepo so teams can work independently per s
 
 This monorepo uses **Nx** for workspace orchestration (project discovery + standard targets).
 Docker Compose remains the runtime layer for the multi-container stack.
-All repo commands use a project-local Docker client config (`.docker/config.json`) to avoid host credential-helper issues.
+All repo commands use a portable compose runner and a project-local Docker client config (`.docker/config.json`) for consistent behavior across Linux/macOS/Windows.
+
+For beginner-focused explanations and learning links, see `docs/beginner_guide.md`.
 
 ### Install Nx dependencies
 
@@ -18,12 +20,14 @@ bun install
 
 ```bash
 bun run nx show projects
-bun run nx run platform:up
-bun run nx run platform:down
+bun run nx run esl-project:up
+bun run nx run esl-project:down
 bun run nx run backend:serve
 bun run nx run gateway:serve
 bun run nx run tag:serve
 bun run nx run-many -t check --projects=backend,gateway,tag
+bun run compose:up
+bun run compose:down
 ```
 
 ## Monorepo structure

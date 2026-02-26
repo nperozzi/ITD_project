@@ -6,7 +6,7 @@
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "DOCKER_CONFIG=.docker docker compose up mosquitto"
+        "command": "bun run scripts/docker-compose-runner.mjs up mosquitto"
       }
     },
     "check": {

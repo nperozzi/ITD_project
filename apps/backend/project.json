@@ -6,19 +6,19 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "DOCKER_CONFIG=.docker docker compose build backend"
+        "command": "bun run scripts/docker-compose-runner.mjs build backend"
       }
     },
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "DOCKER_CONFIG=.docker docker compose up --build backend mosquitto"
+        "command": "bun run scripts/docker-compose-runner.mjs up --build backend mosquitto"
       }
     },
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "python3 -m compileall apps/backend/src"
+        "command": "bun run scripts/python-runner.mjs -m compileall apps/backend/src"
       }
     }
   }

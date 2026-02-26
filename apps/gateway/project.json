@@ -6,19 +6,19 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "DOCKER_CONFIG=.docker docker compose build gateway"
+        "command": "bun run scripts/docker-compose-runner.mjs build gateway"
       }
     },
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "DOCKER_CONFIG=.docker docker compose up --build gateway mosquitto"
+        "command": "bun run scripts/docker-compose-runner.mjs up --build gateway mosquitto"
       }
     },
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "python3 -m compileall apps/gateway"
+        "command": "bun run scripts/python-runner.mjs -m compileall apps/gateway"
       }
     }
   }

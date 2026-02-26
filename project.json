@@ -6,19 +6,19 @@
     "up": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "DOCKER_CONFIG=.docker docker compose up --build"
+        "command": "bun run scripts/docker-compose-runner.mjs up --build"
       }
     },
     "down": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "DOCKER_CONFIG=.docker docker compose down"
+        "command": "bun run scripts/docker-compose-runner.mjs down"
       }
     },
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "DOCKER_CONFIG=.docker docker compose build"
+        "command": "bun run scripts/docker-compose-runner.mjs build"
       }
     }
   }
