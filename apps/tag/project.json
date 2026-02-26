@@ -18,7 +18,7 @@
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "bun run scripts/python-runner.mjs -m compileall apps/tag"
+        "command": "bun run scripts/python-syntax-check.mjs apps/tag"
       }
     }
   }

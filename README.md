@@ -1,22 +1,69 @@
 # Electronic Shelves Label System
 
-This repository is organized as a monorepo so teams can work independently per service.
+Quickstart for local setup and daily commands.
+This repo uses Bun + Nx for orchestration and Docker Compose for runtime.
 
-## Monorepo tooling
+## Quickstart
 
-This monorepo uses **Nx** for workspace orchestration (project discovery + standard targets).
-Docker Compose remains the runtime layer for the multi-container stack.
-All repo commands use a portable compose runner and a project-local Docker client config (`.docker/config.json`) for consistent behavior across Linux/macOS/Windows.
+### 1) Install Bun runtime
 
-For beginner-focused explanations and learning links, see `docs/beginner_guide.md`.
+Linux / macOS:
 
-### Install Nx dependencies
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+powershell -c "irm bun.sh/install.ps1 | iex"
+```
+
+Verify:
+
+```bash
+bun --version
+```
+
+### 2) Install Nx extension in VS Code (Nx Console)
+
+From terminal:
+
+```bash
+code --install-extension nrwl.angular-console
+```
+
+Or install from Marketplace:
+
+```text
+https://marketplace.visualstudio.com/items?itemName=nrwl.angular-console
+```
+
+### 3) Install project dependencies
 
 ```bash
 bun install
 ```
 
-### Useful Nx commands
+### 4) Start services
+
+```bash
+bun run compose:up
+```
+
+### 5) Stop services
+
+```bash
+bun run compose:down
+```
+
+### 6) Build services
+
+```bash
+bun run compose:build
+```
+
+### 7) Nx workspace commands
 
 ```bash
 bun run nx show projects
@@ -25,54 +72,5 @@ bun run nx run esl-project:down
 bun run nx run backend:serve
 bun run nx run gateway:serve
 bun run nx run tag:serve
-bun run nx run-many -t check --projects=backend,gateway,tag
-bun run compose:up
-bun run compose:down
-```
-
-## Monorepo structure
-
-```
-apps/
-	backend/      # Flask + Socket.IO API
-	frontend/     # Frontend app (currently empty)
-	gateway/      # MQTT topic bridge
-	tag/          # Tag simulator
-infra/
-	mosquitto/    # Broker configuration
-docs/
-	team_ground_rules.md
-docker-compose.yml
-```
-
-## Team ownership pattern
-
-- `apps/backend`: backend team
-- `apps/frontend`: frontend team
-- `apps/gateway`: gateway/device integration team
-- `apps/tag`: embedded simulator/testing team
-- `infra/mosquitto`: infrastructure/config team
-- `docs`: shared project documentation
-
-## Run with Docker Compose
-
-1. Make sure Docker is running.
-2. From the repo root (where `docker-compose.yml` is), run:
-
-```bash
-docker compose up --build
-```
-
-3. Open:
-
-```text
-http://localhost:5000
-```
-
-## Quick test
-
-Enter a price and send it from the UI. You should see tag updates in logs, for example:
-
-```text
-tag-1  | Tag display updated: 1
+bun run nx run-many -t check --projects=backend,gateway,tag,mosquitto
 ```
