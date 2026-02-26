@@ -51,6 +51,8 @@ bun install
 bun run compose:up
 ```
 
+Frontend UI: http://localhost:4200
+
 ### 5) Stop services
 
 ```bash

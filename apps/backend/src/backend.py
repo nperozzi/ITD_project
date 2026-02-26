@@ -13,7 +13,6 @@ from flask_socketio import SocketIO
 from routes import api
 from socketio_handlers import register_socketio_handlers
 from mqtt_client import mqtt_client_connect, set_app, set_socketio, set_db
-import database
 
 def main():
     # 1) Initialize database state.
@@ -24,6 +23,13 @@ def main():
     app.config['SECRET_KEY'] = 'secret!'
     app.config['db'] = db
 
+    @app.after_request
+    def add_cors_headers(response):
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,PATCH,DELETE,OPTIONS'
+        return response
+
     # 3) Register API routes.
     app.register_blueprint(api)
 
@@ -31,8 +37,6 @@ def main():
     socketio = SocketIO(app, cors_allowed_origins="*")
 
     # Register socket event handlers.
-    # (Current codebase uses two calls; behavior is unchanged.)
-    register_socketio_handlers(socketio, database)
     register_socketio_handlers(socketio, db)
 
     # 5) Share app/socket/db with MQTT module.

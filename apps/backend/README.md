@@ -4,7 +4,7 @@ Flask + Socket.IO service for the ESL system.
 
 ## What it does
 
-- Serves the web UI and HTTP routes
+- Serves HTTP + Socket.IO APIs for the frontend app
 - Publishes price updates over MQTT
 - Receives battery updates and pushes realtime UI events
 

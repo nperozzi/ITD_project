@@ -6,13 +6,22 @@
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "echo 'Frontend service not implemented yet'"
+        "cwd": "apps/frontend",
+        "command": "bun run dev"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/frontend",
+        "command": "bun run build"
       }
     },
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "echo 'No frontend checks configured yet'"
+        "cwd": "apps/frontend",
+        "command": "bun run check"
       }
     }
   }

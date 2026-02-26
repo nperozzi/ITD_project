@@ -1,5 +1,6 @@
 from flask import current_app
 from typing import Any
+import random
 
 def register_socketio_handlers(socketio: Any, state) -> None:
     """
@@ -12,8 +13,10 @@ def register_socketio_handlers(socketio: Any, state) -> None:
     def _handle_connect():
         # Send initial battery value as soon as browser connects.
         current_app.logger.info("SocketIO client connected")
-        tag = state.get_tag(1) if state else None
-        battery = tag["battery_level"] if tag else None
+        # Keep battery generation on backend (frontend displays this value only).
+        battery = random.randint(1, 100)
+        if state:
+            state.set_tag(1, 1, battery)
         socketio.emit("battery_update", {"battery": battery})
 
     @socketio.on("disconnect")
@@ -22,7 +25,8 @@ def register_socketio_handlers(socketio: Any, state) -> None:
 
     @socketio.on("request_battery")
     def _handle_request_battery():
-        # Client manually requests current battery value.
-        tag = state.get_tag(1) if state else None
-        battery = tag["battery_level"] if tag else None
+        # Client manually requests current battery value from backend.
+        battery = random.randint(1, 100)
+        if state:
+            state.set_tag(1, 1, battery)
         socketio.emit("battery_update", {"battery": battery})

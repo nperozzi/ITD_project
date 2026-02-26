@@ -7,6 +7,7 @@ Responsibilities:
 """
 
 import json
+import random
 import sys
 import paho.mqtt.client as mqtt
 
@@ -71,7 +72,9 @@ def on_message(client, userdata, message):
         data = json.loads(payload)
 
         if "battery" in data and db:
-            db.set_tag(1, 1, data["battery"])
+            # Randomize on backend so UI always depends on backend-provided battery.
+            battery = random.randint(1, 100)
+            db.set_tag(1, 1, battery)
 
             # Read persisted value and emit event through Socket.IO.
             tag = db.get_tag(1)

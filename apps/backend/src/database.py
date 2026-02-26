@@ -76,6 +76,40 @@ class BackendDB:
 			''', (price, product_id))
 			db_connection.commit()
 
+	def get_products(self) -> list[Dict[str, Any]]:
+		# Return all products as dictionaries.
+		with sqlite3.connect(self.db_path) as db_connection:
+			cursor = db_connection.cursor()
+			cursor.execute('''
+				SELECT id, name, price FROM product ORDER BY id
+			''')
+			results = cursor.fetchall()
+			return [
+				{
+					'id': row[0],
+					'name': row[1],
+					'price': row[2]
+				}
+				for row in results
+			]
+
+	def get_tags(self) -> list[Dict[str, Any]]:
+		# Return all tags as dictionaries.
+		with sqlite3.connect(self.db_path) as db_connection:
+			cursor = db_connection.cursor()
+			cursor.execute('''
+				SELECT id, current_product_id, battery_level FROM tag ORDER BY id
+			''')
+			results = cursor.fetchall()
+			return [
+				{
+					'id': row[0],
+					'current_product_id': row[1],
+					'battery_level': row[2]
+				}
+				for row in results
+			]
+
 	def testing_records(self, db_path: str = DB_PATH):
 		"""
 		Create starter records used by this sample app.
