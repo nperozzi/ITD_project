@@ -9,18 +9,32 @@ services:
   backend:
     build: ./backend
     ports:
-      - "5000:5000"  # Expose Flask port
-    volumes:                # We copy the volume for devlopment phase only.
+      - "5000:5000"
+    volumes:
       - ./backend/src:/src
     depends_on:
       - mosquitto
+
+  ble_relay:
+    image: python:3.12-slim
+    command: sh -lc "pip install --no-cache-dir bumble && bumble-link-relay --port 10723"
+    ports:
+      - "10723:10723"   # optional (nice for debugging from host)
+    # Link Relay default port is 10723 :contentReference[oaicite:1]{index=1}
 
   gateway:
     build: ./gateway
     depends_on:
       - mosquitto
+      - ble_relay
+    environment:
+      BLE_TRANSPORT: "link-relay:ws://ble_relay:10723/esl"
+      TAG_ADDRESS: "F6:F7:F8:F9:FA:FB"
 
   tag:
     build: ./tag
     depends_on:
       - mosquitto
+      - ble_relay
+    environment:
+      BLE_TRANSPORT: "link-relay:ws://ble_relay:10723/esl" 
