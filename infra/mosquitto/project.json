@@ -1,0 +1,19 @@
+{
+  "name": "mosquitto",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "infra/mosquitto",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun run scripts/docker-compose-runner.mjs up mosquitto"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun run scripts/check-file-exists.mjs infra/mosquitto/mosquitto.conf"
+      }
+    }
+  }
+}

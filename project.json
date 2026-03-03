@@ -1,0 +1,25 @@
+{
+  "name": "esl-project",
+  "$schema": "./node_modules/nx/schemas/project-schema.json",
+  "root": ".",
+  "targets": {
+    "up": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun run scripts/docker-compose-runner.mjs up --build"
+      }
+    },
+    "down": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun run scripts/docker-compose-runner.mjs down"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun run scripts/docker-compose-runner.mjs build"
+      }
+    }
+  }
+}

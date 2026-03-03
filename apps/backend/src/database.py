@@ -1,0 +1,132 @@
+"""SQLite data access layer for backend.
+
+This class encapsulates all SQL operations used by the app.
+"""
+
+import sqlite3
+from typing import Any, Dict, Optional
+
+DB_PATH = 'sqlite.db'
+
+class BackendDB:
+	def __init__(self, db_path: str = DB_PATH):
+		# Path to SQLite file (created automatically if missing).
+		self.db_path = db_path
+		
+		with sqlite3.connect(self.db_path) as db_connection:
+			# Enable foreign key support in SQLite.
+			db_connection.execute("PRAGMA foreign_keys = ON;")
+			cursor = db_connection.cursor()
+			# Product table stores catalog data.
+			cursor.execute("""
+				  CREATE TABLE IF NOT EXISTS product (
+				  id INTEGER PRIMARY KEY,
+				  name TEXT NOT NULL,
+				  price REAL NOT NULL
+				  )
+			""")
+			
+			# Tag table stores device-level state and current product mapping.
+			cursor.execute("""
+				CREATE TABLE IF NOT EXISTS tag (
+					id INTEGER PRIMARY KEY,
+					current_product_id INTEGER UNIQUE,
+					battery_level INTEGER,
+					FOREIGN KEY (current_product_id) REFERENCES product(id)
+				)
+			""")
+			db_connection.commit()
+
+			self.testing_records(DB_PATH)
+			
+			
+	def set_product_price(self, product_id: int, price: float):
+		# Update price for existing product.
+		with sqlite3.connect(self.db_path) as db_connection:
+			cursor = db_connection.cursor()
+			cursor.execute('''
+				UPDATE product SET price = ? WHERE id = ?
+			''', (price, product_id))
+			db_connection.commit()
+
+	def get_products(self) -> list[Dict[str, Any]]:
+		# Return all products as dictionaries.
+		with sqlite3.connect(self.db_path) as db_connection:
+			cursor = db_connection.cursor()
+			cursor.execute('''
+				SELECT id, name, price FROM product ORDER BY id
+			''')
+			results = cursor.fetchall()
+			return [
+				{
+					'id': row[0],
+					'name': row[1],
+					'price': row[2]
+				}
+				for row in results
+			]
+
+	def update_tag(self, tag_id: int, current_product_id: Optional[int], battery_level: Optional[int]):
+		# Upsert tag state in one query.
+		with sqlite3.connect(self.db_path) as db_connection:
+			cursor = db_connection.cursor()
+			cursor.execute('''
+				INSERT INTO tag (id, current_product_id, battery_level)
+				VALUES (?, ?, ?)
+				ON CONFLICT(id) DO UPDATE SET current_product_id=excluded.current_product_id, battery_level=excluded.battery_level
+			''', (tag_id, current_product_id, battery_level))
+			db_connection.commit()
+
+	def get_tag(self, tag_id: int) -> Optional[Dict[str, Any]]:
+		# Read one tag row and return a dictionary for caller convenience.
+		with sqlite3.connect(self.db_path) as db_connection:
+			cursor = db_connection.cursor()
+			cursor.execute('''
+				SELECT id, current_product_id, battery_level FROM tag WHERE id = ?
+			''', (tag_id,))
+			result = cursor.fetchone()
+			if result:
+				return {
+					'id': result[0],
+					'current_product_id': result[1],
+					'battery_level': result[2]
+				}
+			return None
+
+	def get_all_tags(self) -> list[Dict[str, Any]]:
+		# Return all tags as dictionaries.
+		with sqlite3.connect(self.db_path) as db_connection:
+			cursor = db_connection.cursor()
+			cursor.execute('''
+				SELECT id, current_product_id, battery_level FROM tag ORDER BY id
+			''')
+			results = cursor.fetchall()
+			return [
+				{
+					'id': row[0],
+					'current_product_id': row[1],
+					'battery_level': row[2]
+				}
+				for row in results
+			]
+
+	def testing_records(self, db_path: str = DB_PATH):
+		"""
+		Create starter records used by this sample app.
+		"""
+		self.db_path = db_path
+		
+		with sqlite3.connect(self.db_path) as db_connection:
+			cursor = db_connection.cursor()
+			# Insert initial product if not exists
+			cursor.execute("""
+				INSERT OR IGNORE INTO product (id, name, price)
+				VALUES (?, ?, ?)
+			""", (1, 'bananas', 10))
+			# Insert initial tag if not exists
+			cursor.execute("""
+				INSERT OR IGNORE INTO tag (id, current_product_id, battery_level)
+				VALUES (?, ?, ?)
+			""", (1, 1, None))
+			db_connection.commit()
+

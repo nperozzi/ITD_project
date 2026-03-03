@@ -2,4 +2,12 @@
 *.ini
 **/*.db
 **/__pycache__/
+node_modules/
+.nx/
+dist/
+
+# Local Docker client state (machine-specific, do not commit)
+.docker/**
+!.docker/
+!.docker/.gitkeep
 
