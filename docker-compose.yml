@@ -38,7 +38,10 @@ services:
       # Mount source for faster local iteration during development.
       - ./apps/backend/src:/src
     depends_on:
-      - mosquitto
+      mosquitto:
+        condition: service_started
+      postgres:
+        condition: service_healthy
 
   # Customer-facing frontend dashboard.
   frontend:
