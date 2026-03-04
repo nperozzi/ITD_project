@@ -85,20 +85,16 @@ class BackendDB:
                 for row in products
             ]
 
-    def update_tag(self, tag_id: int, current_product_id: Optional[int], battery_level: Optional[int]):
-        with self._connect() as db_connection:
-            with db_connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO tag (id, current_product_id, battery_level)
-                    VALUES (%s, %s, %s)
-                    ON CONFLICT(id) DO UPDATE
-                    SET current_product_id = EXCLUDED.current_product_id,
-                        battery_level = EXCLUDED.battery_level
-                    """,
-                    (tag_id, current_product_id, battery_level),
-                )
-            db_connection.commit()
+    def update_tag(self, tag_id: int, current_product_id: Optional[int], battery_level: Optional[int]) -> None:
+        with self.SessionLocal() as session:
+            tag = session.get(Tag, tag_id)
+            if tag is None:
+                tag = Tag(id=tag_id)
+                session.add(tag)
+
+            tag.current_product_id = current_product_id
+            tag.battery_level = battery_level
+            session.commit()
 
     def get_tag(self, tag_id: int) -> Optional[Dict[str, Any]]:
         with self._connect() as db_connection:
