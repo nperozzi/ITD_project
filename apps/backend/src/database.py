@@ -37,17 +37,18 @@ class BackendDB:
                 )
             db_connection.commit()
 
-			self.testing_records(DB_PATH)
-			
-			
-	def set_product_price(self, product_id: int, price: float):
-		# Update price for existing product.
-		with sqlite3.connect(self.db_path) as db_connection:
-			cursor = db_connection.cursor()
-			cursor.execute('''
-				UPDATE product SET price = ? WHERE id = ?
-			''', (price, product_id))
-			db_connection.commit()
+    
+
+    def set_product_price(self, product_id: int, price: float) -> None:
+        with self._connect() as db_connection:
+            with db_connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE product SET price = %s WHERE id = %s
+                    """,
+                    (price, product_id),
+                )
+            db_connection.commit()
 
 	def get_products(self) -> list[Dict[str, Any]]:
 		# Return all products as dictionaries.
