@@ -74,19 +74,16 @@ class BackendDB:
             session.commit()
 
     def get_all_products(self) -> list[Dict[str, Any]]:
-        with self._connect() as db_connection:
-            with db_connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT id, name, price FROM product ORDER BY id
-                    """
-                )
-                results = cursor.fetchall()
-                return [{
-                    "id": row[0],
-                    "name": row[1],
-                    "price": row[2]}
-                    for row in results]
+        with self.SessionLocal() as session:
+            products = session.scalars(select(Product).order_by(Product.id)).all()
+            return [
+                {
+                "id": row.id,
+                "name": row.name,
+                "price": row.price
+                }
+                for row in products
+            ]
 
     def update_tag(self, tag_id: int, current_product_id: Optional[int], battery_level: Optional[int]):
         with self._connect() as db_connection:
