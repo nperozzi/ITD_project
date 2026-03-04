@@ -65,15 +65,13 @@ class BackendDB:
         self.testing_records()
 
     def set_product_price(self, product_id: int, price: float) -> None:
-        with self._connect() as db_connection:
-            with db_connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    UPDATE product SET price = %s WHERE id = %s
-                    """,
-                    (price, product_id),
-                )
-            db_connection.commit()
+        with self.SessionLocal() as session:
+            product = session.get(Product, product_id)
+            if product is None:
+                return
+
+            product.price = float(price)
+            session.commit()
 
     def get_all_products(self) -> list[Dict[str, Any]]:
         with self._connect() as db_connection:
