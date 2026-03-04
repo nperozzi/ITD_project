@@ -50,22 +50,20 @@ class BackendDB:
                 )
             db_connection.commit()
 
-	def get_products(self) -> list[Dict[str, Any]]:
-		# Return all products as dictionaries.
-		with sqlite3.connect(self.db_path) as db_connection:
-			cursor = db_connection.cursor()
-			cursor.execute('''
-				SELECT id, name, price FROM product ORDER BY id
-			''')
-			results = cursor.fetchall()
-			return [
-				{
-					'id': row[0],
-					'name': row[1],
-					'price': row[2]
-				}
-				for row in results
-			]
+    def get_all_products(self) -> list[Dict[str, Any]]:
+        with self._connect() as db_connection:
+            with db_connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT id, name, price FROM product ORDER BY id
+                    """
+                )
+                results = cursor.fetchall()
+                return [{
+                    "id": row[0],
+                    "name": row[1],
+                    "price": row[2]}
+                    for row in results]
 
 	def update_tag(self, tag_id: int, current_product_id: Optional[int], battery_level: Optional[int]):
 		# Upsert tag state in one query.
