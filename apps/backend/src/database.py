@@ -1,41 +1,41 @@
 """SQLite data access layer for backend.
 
-This class encapsulates all SQL operations used by the app.
-"""
-
-import sqlite3
+import os
 from typing import Any, Dict, Optional
-
-DB_PATH = 'sqlite.db'
+import psycopg2
 
 class BackendDB:
-	def __init__(self, db_path: str = DB_PATH):
-		# Path to SQLite file (created automatically if missing).
-		self.db_path = db_path
-		
-		with sqlite3.connect(self.db_path) as db_connection:
-			# Enable foreign key support in SQLite.
-			db_connection.execute("PRAGMA foreign_keys = ON;")
-			cursor = db_connection.cursor()
-			# Product table stores catalog data.
-			cursor.execute("""
-				  CREATE TABLE IF NOT EXISTS product (
-				  id INTEGER PRIMARY KEY,
-				  name TEXT NOT NULL,
-				  price REAL NOT NULL
-				  )
-			""")
-			
-			# Tag table stores device-level state and current product mapping.
-			cursor.execute("""
-				CREATE TABLE IF NOT EXISTS tag (
-					id INTEGER PRIMARY KEY,
-					current_product_id INTEGER UNIQUE,
-					battery_level INTEGER,
-					FOREIGN KEY (current_product_id) REFERENCES product(id)
-				)
-			""")
-			db_connection.commit()
+    def __init__(self) -> None:
+        self.database_url = os.getenv("DATABASE_URL")
+        self._create_schema()
+        self.testing_records()
+
+    def _connect(self):
+        return psycopg2.connect(self.database_url, connect_timeout=5)
+
+    def _create_schema(self) -> None:
+        with self._connect() as db_connection:
+            with db_connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS product (
+                        id INTEGER PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        price DOUBLE PRECISION NOT NULL
+                    )
+                    """
+                )
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS tag (
+                        id INTEGER PRIMARY KEY,
+                        current_product_id INTEGER UNIQUE,
+                        battery_level INTEGER,
+                        FOREIGN KEY (current_product_id) REFERENCES product(id)
+                    )
+                    """
+                )
+            db_connection.commit()
 
 			self.testing_records(DB_PATH)
 			

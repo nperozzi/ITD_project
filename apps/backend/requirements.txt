@@ -9,3 +9,6 @@ Flask-SocketIO==5.3.6
 python-socketio==5.11.2
 python-engineio==4.9.0
 
+# PostgreSQL driver
+psycopg2-binary==2.9.10
+
