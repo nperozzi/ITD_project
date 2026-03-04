@@ -110,23 +110,24 @@ class BackendDB:
                     for row in results
                 ]
 
-	def testing_records(self, db_path: str = DB_PATH):
-		"""
-		Create starter records used by this sample app.
-		"""
-		self.db_path = db_path
-		
-		with sqlite3.connect(self.db_path) as db_connection:
-			cursor = db_connection.cursor()
-			# Insert initial product if not exists
-			cursor.execute("""
-				INSERT OR IGNORE INTO product (id, name, price)
-				VALUES (?, ?, ?)
-			""", (1, 'bananas', 10))
-			# Insert initial tag if not exists
-			cursor.execute("""
-				INSERT OR IGNORE INTO tag (id, current_product_id, battery_level)
-				VALUES (?, ?, ?)
-			""", (1, 1, None))
-			db_connection.commit()
-
+    def testing_records(self):
+        """Create starter records used by this sample app."""
+        with self._connect() as db_connection:
+            with db_connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO product (id, name, price)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT (id) DO NOTHING
+                    """,
+                    (1, "bananas", 10),
+                )
+                cursor.execute(
+                    """
+                    INSERT INTO tag (id, current_product_id, battery_level)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT (id) DO NOTHING
+                    """,
+                    (1, 1, None),
+                )
+            db_connection.commit()
