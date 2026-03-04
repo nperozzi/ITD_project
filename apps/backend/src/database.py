@@ -80,21 +80,19 @@ class BackendDB:
                 )
             db_connection.commit()
 
-	def get_tag(self, tag_id: int) -> Optional[Dict[str, Any]]:
-		# Read one tag row and return a dictionary for caller convenience.
-		with sqlite3.connect(self.db_path) as db_connection:
-			cursor = db_connection.cursor()
-			cursor.execute('''
-				SELECT id, current_product_id, battery_level FROM tag WHERE id = ?
-			''', (tag_id,))
-			result = cursor.fetchone()
-			if result:
-				return {
-					'id': result[0],
-					'current_product_id': result[1],
-					'battery_level': result[2]
-				}
-			return None
+    def get_tag(self, tag_id: int) -> Optional[Dict[str, Any]]:
+        with self._connect() as db_connection:
+            with db_connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT id, current_product_id, battery_level FROM tag WHERE id = %s
+                    """,
+                    (tag_id,),
+                )
+                result = cursor.fetchone()
+                if result:
+                    return {"id": result[0], "current_product_id": result[1], "battery_level": result[2]}
+                return None
 
 	def get_all_tags(self) -> list[Dict[str, Any]]:
 		# Return all tags as dictionaries.
