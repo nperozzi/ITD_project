@@ -16,7 +16,8 @@ if config.config_file_name is not None:
 project_src = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(project_src))
 
-from database import Base  # noqa: E402
+from db.base import Base  # noqa: E402
+import db.models  # noqa: F401,E402
 
 target_metadata = Base.metadata
 

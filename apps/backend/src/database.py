@@ -8,38 +8,12 @@ from typing import Any, Dict, Optional
 
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import Float, ForeignKey, Integer, String, create_engine, select
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import sessionmaker
+
+from db.models import Product, Tag
 
 DEFAULT_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/esl"
-
-
-class Base(DeclarativeBase):
-    """Base class for all ORM models."""
-
-
-class Product(Base):
-    __tablename__ = "product"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    price: Mapped[float] = mapped_column(Float, nullable=False)
-
-    tags: Mapped[list["Tag"]] = relationship(back_populates="product")
-
-
-class Tag(Base):
-    __tablename__ = "tag"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    current_product_id: Mapped[Optional[int]] = mapped_column(
-        Integer,
-        ForeignKey("product.id"),
-        nullable=True,
-    )
-    battery_level: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-
-    product: Mapped[Optional[Product]] = relationship(back_populates="tags")
 
 
 def _database_url() -> str:
@@ -78,9 +52,9 @@ class BackendDB:
             products = session.scalars(select(Product).order_by(Product.id)).all()
             return [
                 {
-                "id": row.id,
-                "name": row.name,
-                "price": row.price
+                    "id": row.id,
+                    "name": row.name,
+                    "price": row.price,
                 }
                 for row in products
             ]
