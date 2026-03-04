@@ -97,18 +97,15 @@ class BackendDB:
             session.commit()
 
     def get_tag(self, tag_id: int) -> Optional[Dict[str, Any]]:
-        with self._connect() as db_connection:
-            with db_connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT id, current_product_id, battery_level FROM tag WHERE id = %s
-                    """,
-                    (tag_id,),
-                )
-                result = cursor.fetchone()
-                if result:
-                    return {"id": result[0], "current_product_id": result[1], "battery_level": result[2]}
+        with self.SessionLocal() as session:
+            tag = session.get(Tag, tag_id)
+            if tag is None:
                 return None
+            return {
+                "id": tag.id,
+                "current_product_id": tag.current_product_id,
+                "battery_level": tag.battery_level,
+            }
 
     def get_all_tags(self) -> list[Dict[str, Any]]:
         with self._connect() as db_connection:
