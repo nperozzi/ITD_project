@@ -94,22 +94,21 @@ class BackendDB:
                     return {"id": result[0], "current_product_id": result[1], "battery_level": result[2]}
                 return None
 
-	def get_all_tags(self) -> list[Dict[str, Any]]:
-		# Return all tags as dictionaries.
-		with sqlite3.connect(self.db_path) as db_connection:
-			cursor = db_connection.cursor()
-			cursor.execute('''
-				SELECT id, current_product_id, battery_level FROM tag ORDER BY id
-			''')
-			results = cursor.fetchall()
-			return [
-				{
-					'id': row[0],
-					'current_product_id': row[1],
-					'battery_level': row[2]
-				}
-				for row in results
-			]
+    def get_all_tags(self) -> list[Dict[str, Any]]:
+        with self._connect() as db_connection:
+            with db_connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT id, current_product_id, battery_level FROM tag ORDER BY id
+                    """
+                )
+                results = cursor.fetchall()
+                return [
+                    {"id": row[0],
+                    "current_product_id": row[1],
+                    "battery_level": row[2]}
+                    for row in results
+                ]
 
 	def testing_records(self, db_path: str = DB_PATH):
 		"""
