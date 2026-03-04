@@ -65,16 +65,20 @@ class BackendDB:
                     "price": row[2]}
                     for row in results]
 
-	def update_tag(self, tag_id: int, current_product_id: Optional[int], battery_level: Optional[int]):
-		# Upsert tag state in one query.
-		with sqlite3.connect(self.db_path) as db_connection:
-			cursor = db_connection.cursor()
-			cursor.execute('''
-				INSERT INTO tag (id, current_product_id, battery_level)
-				VALUES (?, ?, ?)
-				ON CONFLICT(id) DO UPDATE SET current_product_id=excluded.current_product_id, battery_level=excluded.battery_level
-			''', (tag_id, current_product_id, battery_level))
-			db_connection.commit()
+    def update_tag(self, tag_id: int, current_product_id: Optional[int], battery_level: Optional[int]):
+        with self._connect() as db_connection:
+            with db_connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO tag (id, current_product_id, battery_level)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT(id) DO UPDATE
+                    SET current_product_id = EXCLUDED.current_product_id,
+                        battery_level = EXCLUDED.battery_level
+                    """,
+                    (tag_id, current_product_id, battery_level),
+                )
+            db_connection.commit()
 
 	def get_tag(self, tag_id: int) -> Optional[Dict[str, Any]]:
 		# Read one tag row and return a dictionary for caller convenience.
