@@ -1,7 +1,7 @@
 """Application entry point for the backend service.
 
 This module wires together:
-- SQLite data access
+- PostgreSQL data access
 - Flask HTTP routes
 - Socket.IO realtime updates
 - MQTT client integration

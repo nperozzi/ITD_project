@@ -1,4 +1,4 @@
-"""SQLite data access layer for backend.
+"""PostgreSQL data access layer for backend."""
 
 import os
 from typing import Any, Dict, Optional
