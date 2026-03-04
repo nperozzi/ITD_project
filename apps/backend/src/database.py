@@ -119,24 +119,17 @@ class BackendDB:
                 for row in tags
             ]
 
-    def testing_records(self):
+    def testing_records(self) -> None:
         """Create starter records used by this sample app."""
-        with self._connect() as db_connection:
-            with db_connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO product (id, name, price)
-                    VALUES (%s, %s, %s)
-                    ON CONFLICT (id) DO NOTHING
-                    """,
-                    (1, "bananas", 10),
-                )
-                cursor.execute(
-                    """
-                    INSERT INTO tag (id, current_product_id, battery_level)
-                    VALUES (%s, %s, %s)
-                    ON CONFLICT (id) DO NOTHING
-                    """,
-                    (1, 1, None),
-                )
-            db_connection.commit()
+        with self.SessionLocal() as session:
+            product = session.get(Product, 1)
+            if product is None:
+                product = Product(id=1, name="bananas", price=10)
+                session.add(product)
+
+            tag = session.get(Tag, 1)
+            if tag is None:
+                tag = Tag(id=1, current_product_id=1, battery_level=None)
+                session.add(tag)
+
+            session.commit()
