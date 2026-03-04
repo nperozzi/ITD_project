@@ -108,20 +108,16 @@ class BackendDB:
             }
 
     def get_all_tags(self) -> list[Dict[str, Any]]:
-        with self._connect() as db_connection:
-            with db_connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT id, current_product_id, battery_level FROM tag ORDER BY id
-                    """
-                )
-                results = cursor.fetchall()
-                return [
-                    {"id": row[0],
-                    "current_product_id": row[1],
-                    "battery_level": row[2]}
-                    for row in results
-                ]
+        with self.SessionLocal() as session:
+            tags = session.scalars(select(Tag).order_by(Tag.id)).all()
+            return [
+                {
+                    "id": row.id,
+                    "current_product_id": row.current_product_id,
+                    "battery_level": row.battery_level,
+                }
+                for row in tags
+            ]
 
     def testing_records(self):
         """Create starter records used by this sample app."""
