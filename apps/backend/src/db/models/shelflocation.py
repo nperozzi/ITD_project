@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlachemy import Integer
+from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
@@ -11,11 +11,11 @@ class ShelfLocation(Base):
 
     #Attributes
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    store_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    store_id: Mapped[int] = mapped_column(ForeignKey("store.id"), nullable=False)
     aisle: Mapped[int] = mapped_column(Integer, nullable=False)
     level: Mapped[int] = mapped_column(Integer, nullable=False)
 
     #Relationships
     store: Mapped["Store"] = relationship(
-        back_populates="shelflocations"
+        back_populates="shelflocation"
     )
