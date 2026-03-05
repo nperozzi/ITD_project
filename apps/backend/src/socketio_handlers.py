@@ -1,12 +1,13 @@
 from flask import current_app
 from typing import Any
 import random
+from db.crud.crud_tag import update_tag
 
 def register_socketio_handlers(socketio: Any, state) -> None:
     """
     Register Socket.IO event handlers.
 
-    `state` is expected to provide `get_tag(tag_id)`.
+    `state` is expected to provide `SessionLocal`.
     In this app, that is usually the database adapter.
     """
     @socketio.on("connect")
@@ -16,7 +17,8 @@ def register_socketio_handlers(socketio: Any, state) -> None:
         # Keep battery generation on backend (frontend displays this value only).
         battery = random.randint(1, 100)
         if state:
-            state.update_tag(1, 1, battery)
+            with state.SessionLocal() as session:
+                update_tag(session, 1, product_id=1, battery_pct=battery)
         socketio.emit("battery_update", {"battery": battery})
 
     @socketio.on("disconnect")
@@ -28,5 +30,6 @@ def register_socketio_handlers(socketio: Any, state) -> None:
         # Client manually requests current battery value from backend.
         battery = random.randint(1, 100)
         if state:
-            state.update_tag(1, 1, battery)
+            with state.SessionLocal() as session:
+                update_tag(session, 1, product_id=1, battery_pct=battery)
         socketio.emit("battery_update", {"battery": battery})

@@ -10,6 +10,7 @@ import json
 import random
 import sys
 import paho.mqtt.client as mqtt
+from db.crud.crud_tag import get_tag, update_tag
 
 BROKER = "mosquitto"
 PORT = 1883
@@ -74,11 +75,12 @@ def on_message(client, userdata, message):
         if "battery" in data and db:
             # Randomize on backend so UI always depends on backend-provided battery.
             battery = random.randint(1, 100)
-            db.update_tag(1, 1, battery)
+            with db.SessionLocal() as session:
+                update_tag(session, 1, product_id=1, battery_pct=battery)
 
-            # Read persisted value and emit event through Socket.IO.
-            tag = db.get_tag(1)
-            battery = tag["battery_level"] if tag else None
+                # Read persisted value and emit event through Socket.IO.
+                tag = get_tag(session, 1)
+                battery = tag.battery_pct if tag else None
 
             if app and socketio:
                 with app.app_context():
