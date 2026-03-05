@@ -16,8 +16,9 @@ class Product(Base):
     sku: Mapped[str] = mapped_column(String, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     attributes_json: Mapped[dict[str, Any]] = mapped_column(JSON,
-                                                            nullable=False,
-                                                            default=dict)
+        nullable=False,
+        default=dict
+    )
     price: Mapped[float] = mapped_column(Float, nullable=False)
 
     # Relationships
