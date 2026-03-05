@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlachemy import Integer
+from sqlalchemy import Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
