@@ -11,3 +11,6 @@ dist/
 !.docker/
 !.docker/.gitkeep
 
+# VScode configs
+*.vscode
+
