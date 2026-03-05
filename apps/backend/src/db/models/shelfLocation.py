@@ -7,7 +7,7 @@ from db.base import Base
 from db.models.store import Store
 
 class ShelfLocation(Base):
-    __tablename__ = "shelflocation"
+    __tablename__ = "shelfLocation"
 
     #Attributes
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -17,5 +17,5 @@ class ShelfLocation(Base):
 
     #Relationships
     store: Mapped["Store"] = relationship(
-        back_populates="shelflocation"
+        back_populates="shelfLocation"
     )

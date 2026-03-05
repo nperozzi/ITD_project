@@ -17,6 +17,6 @@ class Store(Base):
     gateways: Mapped[list["Gateway"]] = relationship(
         back_populates="store"
     )
-    shelflocation: Mapped[list["ShelfLocation"]] = relationship(
+    shelfLocation: Mapped[list["ShelfLocation"]] = relationship(
         back_populates="store"
     )
