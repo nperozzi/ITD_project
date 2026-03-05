@@ -1,4 +1,3 @@
-# Gateway(id, store_id, status, last_heartbeat_at)
 
 from typing import Optional, Any
 
@@ -17,7 +16,7 @@ def create_gateway(db: Session, status: Status, store_id: Optional[int] = None,
     db.refresh(gateway)
     return gateway
 
-def get_store(db: Session, gateway_id: int) -> Gateway | None:
+def get_gateway(db: Session, gateway_id: int) -> Gateway | None:
     return db.get(Gateway, gateway_id)
 
 def get_all_gateways(db: Session):
@@ -25,4 +24,27 @@ def get_all_gateways(db: Session):
     return db.scalars(gateways).all()
 
 def update_gateway(db: Session, gateway_id: int, **kwargs: Any) -> Gateway | None:
+    gateway = db.get(Gateway, gateway_id)
 
+    if not gateway:
+        return None
+    
+    for key, value in kwargs.items():
+        if hasattr(gateway, key):
+            setattr(gateway, key, value)
+    
+    db.commit()
+    db.refresh(gateway)
+
+    return gateway
+
+def delete_gateway(db: Session, gateway_id: int) -> bool:
+    gateway = db.get(Gateway, gateway_id)
+
+    if not gateway:
+        return False
+    
+    db.delete(gateway)
+    db.commit()
+
+    return True
