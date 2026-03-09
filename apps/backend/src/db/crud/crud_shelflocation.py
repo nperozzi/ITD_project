@@ -3,7 +3,7 @@ from typing import Any, Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from db.models.shelflocation import ShelfLocation
+from db.models.shelfLocation import ShelfLocation
 
 def create_shelflocation(
         db: Session,
@@ -25,7 +25,11 @@ def create_shelflocation(
 def get_shelflocation(db: Session, shelflocation_id: int) -> ShelfLocation | None:
     return db.get(ShelfLocation, shelflocation_id)
 
-def get_all_shelflocations(db: Session, shelflocation_id: int, **kwargs: Any) -> ShelfLocation | None:
+def get_all_shelflocations(db: Session) -> list[ShelfLocation]:
+    stmt = select(ShelfLocation)
+    return db.scalars(stmt).all()
+
+def update_shelflocation(db: Session, shelflocation_id: int, **kwargs: Any) -> ShelfLocation | None:
     shelflocation = db.get(ShelfLocation, shelflocation_id)
     if not shelflocation:
         return None
