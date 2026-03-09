@@ -21,7 +21,7 @@ class Promotion(Base):
         ForeignKey("product.id"),
         nullable=True
     )
-    discount_percentage: Mapped [int] = mapped_column (integer)
+    discount_percentage: Mapped [int] = mapped_column (Integer)
     start_at: Mapped [DateTime] = mapped_column (DateTime)
     end_at: Mapped [DateTime] = mapped_column (DateTime)
 
