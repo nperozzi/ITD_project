@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from sqlalchemy import Integer, JSON
+from sqlalchemy import Integer, JSON, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
-from db.models.store import Store
 
 class TagPayload(Base):
     __tablename__ = "tagpayload"
