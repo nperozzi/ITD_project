@@ -25,3 +25,7 @@ class Product(Base):
     tags: Mapped[list["Tag"]] = relationship(
         back_populates="product"
     )
+
+    promotions: Mapped[list["Promotion"]] = relationship(
+    back_populates="product"
+    )
