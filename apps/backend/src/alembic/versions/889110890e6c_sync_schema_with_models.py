@@ -92,3 +92,4 @@ def downgrade() -> None:
     op.drop_table('shelfLocation')
     op.drop_table('gateway')
     op.drop_table('store')
+    op.execute("DROP TYPE IF EXISTS status")
