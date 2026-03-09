@@ -1,26 +1,40 @@
+# Tag(id, battery_pct, status, product_id, shelf_location_id)
+
 from __future__ import annotations
 
 from typing import Optional
+from enum import Enum
 
-from sqlalchemy import ForeignKey, Integer
+from sqlalchemy import CheckConstraint, Enum as SQLEnum, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
 from db.models.product import Product
 
+class Status(Enum):
+    ONLINE = "online"
+    OFFLINE = "offline"
+    DISABLED = "disabled"
 
 class Tag(Base):
     __tablename__ = "tag"
+    __table_args__ = (
+        CheckConstraint(
+            "battery_pct IS NULL OR (battery_pct >= 0 AND battery_pct <= 100)",
+            name="ck_tag_battery_pct_0_100",
+        ),
+    )
 
     # Attributes
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    current_product_id: Mapped[Optional[int]] = mapped_column(
-        Integer,
+    battery_pct: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    status: Mapped[Status] = mapped_column(SQLEnum(Status), nullable=False)
+    product_id: Mapped[Optional[int]] = mapped_column(Integer,
         ForeignKey("product.id"),
-        nullable=True,
+        nullable=True
     )
-    battery_level: Mapped[Optional[int]] = mapped_column(
-        Integer,
+    shelf_location_id: Mapped[Optional[int]] = mapped_column(Integer,
+        ForeignKey("shelfLocation.id"),
         nullable=True
     )
 
