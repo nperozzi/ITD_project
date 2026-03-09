@@ -5,15 +5,12 @@ from sqlalchemy.orm import Session
 
 from db.models.tagpayload import TagPayload
 
-def create_tagpayload(
-        db: Session,
-        tag_id: int,
-        payload_json: dict[str, Any]
+def create_tagpayload(db: Session, tag_id: int, payload_json: dict[str, Any]
 ) -> TagPayload:
     tagpayload = TagPayload(
-        tag=tag_id,
-        payload_json=payload_json
-    )
+    tag_id = tag_id,
+    payload_json = payload_json
+)
     
     db.add(tagpayload)
     db.commit()
@@ -21,7 +18,7 @@ def create_tagpayload(
 
     return tagpayload
 
-def get_tagpayload(db: Session, tagpayload_id: int) -> Tagpaload | none:
+def get_tagpayload(db: Session, tagpayload_id: int) -> TagPayload | None:
     return db.get(TagPayload, tagpayload_id)
 
 def get_all_tagpayloads (db: Session) -> list[TagPayload]:
