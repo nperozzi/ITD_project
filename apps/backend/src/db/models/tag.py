@@ -42,3 +42,8 @@ class Tag(Base):
     product: Mapped[Optional[Product]] = relationship(
         back_populates="tags"
     )
+
+    payloads: Mapped[list["TagPayload"]] = relationship(
+    back_populates="tag",
+    cascade="all, delete-orphan"
+    ) 
