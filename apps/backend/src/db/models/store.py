@@ -1,0 +1,22 @@
+from __future__ import annotations
+
+
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from db.base import Base
+
+class Store(Base):
+    __tablename__ = "store"
+
+    #Attributes
+    id: Mapped[int] = mapped_column(Integer, primary_key = True)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+
+    #Relationships
+    gateways: Mapped[list["Gateway"]] = relationship(
+        back_populates="store"
+    )
+    shelfLocation: Mapped[list["ShelfLocation"]] = relationship(
+        back_populates="store"
+    )
