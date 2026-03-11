@@ -3,6 +3,8 @@
 import random
 from flask import Blueprint, request, jsonify, current_app
 from mqtt_client import publish_price
+from db.crud.crud_product import update_product
+from db.crud.crud_tag import update_tag
 
 # Blueprint keeps route registration organized.
 api = Blueprint("api", __name__)
@@ -130,7 +132,8 @@ def set_price():
     # Persist current product price.
     db = current_app.config.get('db')
     if db:
-        db.set_product_price(1, price)
+        with db.SessionLocal() as session:
+            update_product(session, 1, price=float(price))
 
     # Broadcast price update through MQTT.
     publish_price(price)
@@ -144,7 +147,8 @@ def battery():
     # Persist the generated value so other backend paths can read the latest state.
     db = current_app.config.get('db')
     if db:
-        db.update_tag(1, 1, battery)
+        with db.SessionLocal() as session:
+            update_tag(session, 1, product_id=1, battery_pct=battery)
 
     return jsonify({"battery": battery})
 

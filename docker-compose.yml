@@ -1,4 +1,22 @@
 services:
+  # PostgreSQL database for backend persistence.
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=esl
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:        # Check when Postgres is up and running to then allow backend connection.
+      test: ["CMD-SHELL", "pg_isready -U postgres -d esl"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # MQTT broker used by backend, gateway, and tag simulator.
   mosquitto:
     image: eclipse-mosquitto
     ports:
@@ -10,10 +28,15 @@ services:
     build: ./apps/backend
     ports:
       - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/esl
     volumes:
       - ./apps/backend/src:/src
     depends_on:
-      - mosquitto
+      mosquitto:
+        condition: service_started
+      postgres:
+        condition: service_healthy
 
   frontend:
     build: ./apps/frontend
@@ -41,6 +64,7 @@ services:
     build: ./apps/tag
     depends_on:
       - mosquitto
+      
     environment:
       - BROKER=mosquitto
       - PORT=1883
@@ -50,3 +74,6 @@ services:
       - RELIABILITY=0.9
       - PUBLISH_INTERVAL=2.0
       - PACKET_TOPIC=tags/packets
+
+volumes:
+  postgres_data:

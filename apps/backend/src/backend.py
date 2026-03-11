@@ -1,21 +1,23 @@
 """Application entry point for the backend service.
 
 This module wires together:
-- SQLite data access
+- PostgreSQL data access
 - Flask HTTP routes
 - Socket.IO realtime updates
 - MQTT client integration
 """
 
-from database import BackendDB
+from database import BackendDB, run_migrations
 from flask import Flask
 from flask_socketio import SocketIO
 from routes import api
 from socketio_handlers import register_socketio_handlers
 from mqtt_client import mqtt_client_connect, set_app, set_socketio, set_db
 
+
 def main():
-    # 1) Initialize database state.
+    # 1) Apply schema migrations and initialize database state.
+    run_migrations()
     db = BackendDB()
 
     # 2) Create Flask app and attach shared objects to config.
@@ -45,8 +47,9 @@ def main():
     set_db(db)
 
     # 6) Connect to MQTT broker and start web server.
-    mqtt_client_connect()   
+    mqtt_client_connect()
     socketio.run(app, host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True)
+
 
 if __name__ == "__main__":
     main()

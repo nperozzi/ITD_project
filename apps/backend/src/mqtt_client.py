@@ -1,6 +1,7 @@
 import json
 import sys
 import paho.mqtt.client as mqtt
+from db.crud.crud_tag import get_tag, update_tag
 
 # MQTT broker connection settings.
 BROKER = "mosquitto"
@@ -77,6 +78,15 @@ def on_message(client, userdata, message):
 
     if len(parts) != 5:
         return
+        if "battery" in data and db:
+            # Randomize on backend so UI always depends on backend-provided battery.
+            battery = random.randint(1, 100)
+            with db.SessionLocal() as session:
+                update_tag(session, 1, product_id=1, battery_pct=battery)
+
+                # Read persisted value and emit event through Socket.IO.
+                tag = get_tag(session, 1)
+                battery = tag.battery_pct if tag else None
 
     if parts[0] != "gateway" or parts[1] != "events" or parts[2] != "tag":
         return
