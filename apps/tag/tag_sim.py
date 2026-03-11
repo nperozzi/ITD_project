@@ -5,11 +5,10 @@ Simulates an electronic shelf label device by:
 - printing displayed price
 - publishing a battery level message
 """
-
+import os
 import time
 import json
 import sys
-import time
 
 import paho.mqtt.client as mqtt
 
@@ -20,20 +19,25 @@ PORT = int(os.getenv("PORT", "1883"))
 # Topic used to publish simulated tags packets
 PACKET_TOPIC = os.getenv("PACKET_TOPIC", "tags/packets")
 
+# Tag simulator settings from environment.
+TAG_ID = int(os.getenv("TAG_ID", "1"))
+BATTERY = int(os.getenv("BATTERY", "87"))
+PRODUCT_ID = int(os.getenv("PRODUCT_ID", "1001"))
+RELIABILITY = float(os.getenv("RELIABILITY", "0.9"))
+PUBLISH_INTERVAL = float(os.getenv("PUBLISH_INTERVAL", "2.0"))
+
 class TagSim:
     def __init__(self, tag_id, battery, product_id, reliability):
         self.tag_id = tag_id
         self.battery = battery
         self.product_id = product_id
         self.reliability = reliability
-        self.status = "OK"
+        self.status = "online"
 
     def update_status(self):
-        # Update status based on current battery level.
-        if self.battery <= 20:
-            self.status = "LOW_BATTERY"
-        else:
-            self.status = "OK"
+        if self.battery > 0:
+            self.status = "online"
+    
 
     def build_packet(self):
         # Stop sending packet if the battery is empty

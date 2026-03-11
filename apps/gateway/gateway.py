@@ -36,7 +36,6 @@ class MQTTPublisher:
     """
 
     def __init__(self, mqtt_client):
-        # Save the MQTT client so we can reuse it for publishes.
         self.mqtt_client = mqtt_client
 
     def publish(self, topic, payload_dict):
@@ -61,17 +60,6 @@ class GatewayCore:
     def __init__(self, known_tags):
         # List of tag IDs this gateway expects to track.
         self.known_tags = known_tags
-
-        # Stores last known data for each tag.
-        # Example:
-        # {
-        #   1: {
-        #       "battery": 87,
-        #       "status": "OK",
-        #       "product_id": 1001,
-        #       "last_seen_time": 1773179161.12
-        #   }
-        # }
         self.last_seen = {}
 
         # Tags that have already triggered a low battery alert.
@@ -107,8 +95,11 @@ class GatewayCore:
         if not (0 <= packet["battery"] <= 100):
             return False, "battery must be between 0 and 100"
 
-        if packet["status"] not in ["OK", "LOW_BATTERY"]:
-            return False, "status must be OK or LOW_BATTERY"
+        if  not isinstance(packet["status"], str):
+            return False, "status must be string"
+        
+        if packet["status"] != "online":
+            return False, "status must be online"
 
         if not isinstance(packet["product_id"], int):
             return False, "product_id must be int"
@@ -199,8 +190,6 @@ class GatewayCore:
                 continue
 
             data = self.last_seen[tag_id]
-
-            # Calculate how long the tag has been silent.
             seconds_missing = now - data["last_seen_time"]
 
             # If the tag has not been heard for too long, mark it offline.

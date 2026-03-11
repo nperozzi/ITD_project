@@ -1,7 +1,7 @@
 import json
 import sys
 import paho.mqtt.client as mqtt
-from db.crud.crud_tag import get_tag, update_tag
+from db.crud.crud_tag import update_tag
 
 # MQTT broker connection settings.
 BROKER = "mosquitto"
@@ -11,7 +11,6 @@ db = None
 app = None
 socketio = None
 
-# Single MQTT client instance reused by this module.
 client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
 
 
@@ -28,7 +27,7 @@ def set_socketio(sio):
 
 
 def set_db(db_instance):
-    # Save database adapter used for persistence.
+    # Save database/session provider used for persistence.
     global db
     db = db_instance
 
@@ -78,15 +77,6 @@ def on_message(client, userdata, message):
 
     if len(parts) != 5:
         return
-        if "battery" in data and db:
-            # Randomize on backend so UI always depends on backend-provided battery.
-            battery = random.randint(1, 100)
-            with db.SessionLocal() as session:
-                update_tag(session, 1, product_id=1, battery_pct=battery)
-
-                # Read persisted value and emit event through Socket.IO.
-                tag = get_tag(session, 1)
-                battery = tag.battery_pct if tag else None
 
     if parts[0] != "gateway" or parts[1] != "events" or parts[2] != "tag":
         return
@@ -101,11 +91,22 @@ def on_message(client, userdata, message):
     if event_type == "heard":
         battery = data.get("battery")
         product_id = data.get("product_id")
-        status = data.get("status")
+        status = data.get("status", "online")
 
-        # Persist latest known tag state.
-        if battery is not None and product_id is not None and db:
-            db.update_tag(tag_id, product_id, battery)
+        # Persist latest known tag state using ORM CRUD.
+        if db:
+            updates = {}
+
+            if battery is not None:
+                updates["battery_pct"] = battery
+            if product_id is not None:
+                updates["product_id"] = product_id
+            if status is not None:
+                updates["status"] = status
+
+            if updates:
+                with db.SessionLocal() as session:
+                    update_tag(session, tag_id, **updates)
 
         # Notify connected frontend clients.
         if app and socketio:
@@ -124,6 +125,11 @@ def on_message(client, userdata, message):
     elif event_type == "low_battery":
         battery = data.get("battery")
 
+        # Persist low-battery state.
+        if db and battery is not None:
+            with db.SessionLocal() as session:
+                update_tag(session, tag_id, battery_pct=battery)
+            
         # Forward low battery event to the frontend.
         if app and socketio:
             with app.app_context():
@@ -137,6 +143,11 @@ def on_message(client, userdata, message):
                 )
 
     elif event_type == "offline":
+        # Persist offline state.
+        if db:
+            with db.SessionLocal() as session:
+                update_tag(session, tag_id, status="offline")
+
         # Forward offline event to the frontend.
         if app and socketio:
             with app.app_context():
