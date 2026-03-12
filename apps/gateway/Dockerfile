@@ -8,7 +8,7 @@ WORKDIR /app
 RUN pip install paho-mqtt
 
 # Copy service source into image.
-COPY gateway.py .
+COPY gateway.py mqttpublisher.py gatewaycore.py .
 
 # Start gateway service.
 CMD ["python", "gateway.py"]
