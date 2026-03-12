@@ -8,7 +8,7 @@ WORKDIR /app
 RUN pip install paho-mqtt
 
 # Copy service source into image.
-COPY tag_sim.py .
+COPY tag_sim.py TagSimClass.py .
 
 # Start tag simulator service.
 CMD ["python", "tag_sim.py"]

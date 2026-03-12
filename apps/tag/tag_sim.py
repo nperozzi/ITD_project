@@ -12,6 +12,9 @@ import sys
 
 import paho.mqtt.client as mqtt
 
+#Importing our TagSim class.
+from TagSimClass import TagSim
+
 # MQTT broker connection settings
 BROKER = os.getenv("BROKER", "mosquitto")
 PORT = int(os.getenv("PORT", "1883"))
@@ -25,39 +28,6 @@ BATTERY = int(os.getenv("BATTERY", "87"))
 PRODUCT_ID = int(os.getenv("PRODUCT_ID", "1001"))
 RELIABILITY = float(os.getenv("RELIABILITY", "0.9"))
 PUBLISH_INTERVAL = float(os.getenv("PUBLISH_INTERVAL", "2.0"))
-
-class TagSim:
-    def __init__(self, tag_id, battery, product_id, reliability):
-        self.tag_id = tag_id
-        self.battery = battery
-        self.product_id = product_id
-        self.reliability = reliability
-        self.status = "online"
-
-    def update_status(self):
-        if self.battery > 0:
-            self.status = "online"
-    
-
-    def build_packet(self):
-        # Stop sending packet if the battery is empty
-        if self.battery <= 0:
-            return None
-
-        self.update_status()
-
-        return {
-            "tag_id": self.tag_id,
-            "battery": self.battery,
-            "status": self.status,
-            "product_id": self.product_id,
-            "reliability": self.reliability
-        }
-
-    def drain_battery(self, amount=1):
-        # Reduce battery after each publish cycle.
-        if self.battery > 0:
-            self.battery = max(0, self.battery - amount)
 
 
 def main():
