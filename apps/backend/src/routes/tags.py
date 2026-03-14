@@ -12,6 +12,11 @@ from services.tag_service import (
     list_all_tags,
     update_tag_from_payload,
 )
+from services.tag_payload_service import (
+    TagPayloadError,
+    get_debug_payload_for_tag,
+    publish_payload_for_tag,
+)
 
 from . import api
 from .shared import session_scope
@@ -70,3 +75,25 @@ def delete_tag_route(tag_id: int):
         return jsonify({"error": "Tag not found."}), 404
 
     return jsonify({"status": "deleted", "id": tag_id})
+
+
+@api.route("/api/tags/<int:tag_id>/payload")
+def get_tag_payload_route(tag_id: int):
+    try:
+        with session_scope() as session:
+            payload = get_debug_payload_for_tag(session, tag_id)
+    except TagPayloadError as exc:
+        return jsonify({"error": str(exc)}), 404
+
+    return jsonify(payload)
+
+
+@api.route("/api/tags/<int:tag_id>/publish", methods=["POST"])
+def publish_tag_payload_route(tag_id: int):
+    try:
+        with session_scope() as session:
+            result = publish_payload_for_tag(session, tag_id)
+    except TagPayloadError as exc:
+        return jsonify({"error": str(exc)}), 400 if "assigned to a product" in str(exc) else 404
+
+    return jsonify(result)
