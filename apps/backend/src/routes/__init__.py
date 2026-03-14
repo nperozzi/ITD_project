@@ -9,6 +9,7 @@ from . import demo_resources  # noqa: F401,E402
 from . import gateways  # noqa: F401,E402
 from . import health  # noqa: F401,E402
 from . import products  # noqa: F401,E402
+from . import promotions  # noqa: F401,E402
 from . import shelf_locations  # noqa: F401,E402
 from . import stores  # noqa: F401,E402
 from . import tags  # noqa: F401,E402

@@ -12,7 +12,3 @@ from .shared import dashboard_data
 def tag_payloads():
     return jsonify(dashboard_data()["tagPayloads"])
 
-
-@api.route("/api/promotions")
-def promotions():
-    return jsonify(dashboard_data()["promotions"])
