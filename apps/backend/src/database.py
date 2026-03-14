@@ -10,8 +10,7 @@ from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from db.models import Product, Tag
-from db.models.tag import Status
+from seeds.demo_data import seed_demo_data
 
 DEFAULT_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/esl"
 
@@ -36,31 +35,9 @@ class BackendDB:
         self.database_url = _database_url()
         self.engine = create_engine(self.database_url, pool_pre_ping=True)
         self.SessionLocal = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
-        self.testing_records()
+        self.seed_records()
 
-    def testing_records(self) -> None:
-        """Create starter records used by this sample app."""
+    def seed_records(self) -> None:
+        """Create or refresh stable demo records used by this sample app."""
         with self.SessionLocal() as session:
-            product = session.get(Product, 1)
-            if product is None:
-                product = Product(
-                    id=1,
-                    sku="BAN-001",
-                    name="bananas",
-                    attributes_json={},
-                    price=10,
-                )
-                session.add(product)
-
-            tag = session.get(Tag, 1)
-            if tag is None:
-                tag = Tag(
-                    id=1,
-                    battery_pct=None,
-                    status=Status.ONLINE,
-                    product_id=1,
-                    shelf_location_id=None,
-                )
-                session.add(tag)
-
-            session.commit()
+            seed_demo_data(session)
