@@ -16,7 +16,7 @@ class ProductValidationError(ValueError):
     """Raised when incoming product payloads are invalid."""
 
 
-def product_to_dictionary(product: Product) -> dict[str, Any]:
+def convert_product_obj_to_dict(product: Product) -> dict[str, Any]:
     return {
         "id": product.id,
         "sku": product.sku,
@@ -27,20 +27,20 @@ def product_to_dictionary(product: Product) -> dict[str, Any]:
 
 
 def list_all_products(db: Session) -> list[dict[str, Any]]:
-    return [product_to_dictionary(product) for product in get_all_products(db)]
+    return [convert_product_obj_to_dict(product) for product in get_all_products(db)]
 
 
 def get_product_details(db: Session, product_id: int) -> dict[str, Any] | None:
     product = get_product(db, product_id)
     if product is None:
         return None
-    return product_to_dictionary(product)
+    return convert_product_obj_to_dict(product)
 
 
 def create_product_from_payload(db: Session, payload: dict[str, Any]) -> dict[str, Any]:
     product_data = _validated_product_fields(payload, partial=False)
     product = create_product(db=db, **product_data)
-    return product_to_dictionary(product)
+    return convert_product_obj_to_dict(product)
 
 
 def update_product_from_payload(db: Session, product_id: int, payload: dict[str, Any]) -> dict[str, Any] | None:
@@ -51,7 +51,7 @@ def update_product_from_payload(db: Session, product_id: int, payload: dict[str,
     product = update_product(db, product_id, **product_data)
     if product is None:
         return None
-    return product_to_dictionary(product)
+    return convert_product_obj_to_dict(product)
 
 
 def delete_product_by_id(db: Session, product_id: int) -> bool:
