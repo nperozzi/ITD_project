@@ -55,6 +55,13 @@ def publish_price(price):
     topic = f"b-g/tag1/price"
     client.publish(topic, payload, retain=True)
 
+
+def publish_tag_payload(tag_id: int, payload_data: dict):
+    # Publish a generated tag payload snapshot to the tag topic namespace.
+    payload = json.dumps(payload_data)
+    topic = f"b-g/tag{tag_id}/payload"
+    client.publish(topic, payload, retain=True)
+
 def on_connect(client, userdata, flags, rc, properties=None):
     # Called by paho-mqtt after broker connection succeeds.
     print("Backend connected to broker")
