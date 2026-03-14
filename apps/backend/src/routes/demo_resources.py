@@ -8,11 +8,6 @@ from . import api
 from .shared import dashboard_data
 
 
-@api.route("/api/gateways")
-def gateways():
-    return jsonify(dashboard_data()["gateways"])
-
-
 @api.route("/api/shelf-locations")
 def shelf_locations():
     return jsonify(dashboard_data()["shelfLocations"])
