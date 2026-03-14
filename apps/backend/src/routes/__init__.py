@@ -8,4 +8,5 @@ api = Blueprint("api", __name__)
 from . import demo_resources  # noqa: F401,E402
 from . import health  # noqa: F401,E402
 from . import products  # noqa: F401,E402
+from . import stores  # noqa: F401,E402
 from . import tags  # noqa: F401,E402
