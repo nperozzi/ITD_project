@@ -1,5 +1,6 @@
 export type ConnectionStatus = 'online' | 'offline' | 'degraded';
 export type TagStatus = 'active' | 'low-battery' | 'offline';
+export type EntityId = number;
 
 export type NavigationKey =
   | 'dashboard'
@@ -12,26 +13,26 @@ export type NavigationKey =
   | 'promotions';
 
 export interface Store {
-  id: string;
+  id: EntityId;
   name: string;
 }
 
 export interface Gateway {
-  id: string;
-  storeId: string;
+  id: EntityId;
+  storeId: EntityId | null;
   status: ConnectionStatus;
   lastHeartbeatAt: string;
 }
 
 export interface ShelfLocation {
-  id: string;
-  storeId: string;
-  aisle: string;
-  level: string;
+  id: EntityId;
+  storeId: EntityId;
+  aisle: number;
+  level: number;
 }
 
 export interface Product {
-  id: string;
+  id: EntityId;
   sku: string;
   name: string;
   attributesJson: Record<string, string | number | boolean>;
@@ -39,22 +40,22 @@ export interface Product {
 }
 
 export interface Tag {
-  id: string;
+  id: EntityId;
   batteryPct: number;
   status: TagStatus;
-  productId: string;
-  shelfLocationId: string;
+  productId: EntityId | null;
+  shelfLocationId: EntityId | null;
 }
 
 export interface TagPayload {
-  id: string;
+  id: EntityId;
   payloadJson: Record<string, unknown>;
 }
 
 export interface Promotion {
-  id: string;
-  productId: string;
-  promoType: 'percentage' | 'fixed-amount' | 'bundle';
+  id: EntityId;
+  productId: EntityId | null;
+  promoType: 'percentage';
   value: number;
   startAt: string;
   endAt: string;

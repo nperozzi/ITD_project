@@ -40,7 +40,7 @@ def test_get_shelflocations_returns_database_rows():
 
     assert response.status_code == 200
     assert response.get_json() == [
-        {"id": 1, "storeId": store_id, "aisle": "1", "level": "2"}
+        {"id": 1, "storeId": store_id, "aisle": 1, "level": 2}
     ]
 
 
@@ -81,8 +81,8 @@ def test_patch_shelflocation_updates_existing_row():
     assert response.get_json() == {
         "id": shelflocation_id,
         "storeId": store_id,
-        "aisle": "5",
-        "level": "4",
+        "aisle": 5,
+        "level": 4,
     }
 
 

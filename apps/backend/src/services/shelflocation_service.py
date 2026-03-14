@@ -22,8 +22,8 @@ def shelflocation_to_dictionary(shelflocation: ShelfLocation) -> dict[str, Any]:
     return {
         "id": shelflocation.id,
         "storeId": shelflocation.store_id,
-        "aisle": str(shelflocation.aisle),
-        "level": str(shelflocation.level),
+        "aisle": shelflocation.aisle,
+        "level": shelflocation.level,
     }
 
 

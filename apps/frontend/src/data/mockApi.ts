@@ -9,54 +9,54 @@ import type {
 } from '../types';
 
 const stores: Store[] = [
-  { id: 'store-001', name: 'Downtown Market' },
-  { id: 'store-002', name: 'Riverside Market' },
+  { id: 1, name: 'Downtown Market' },
+  { id: 2, name: 'Riverside Market' },
 ];
 
 const gateways: Gateway[] = [
   {
-    id: 'gw-001',
-    storeId: 'store-001',
+    id: 1,
+    storeId: 1,
     status: 'online',
     lastHeartbeatAt: '2026-02-26T09:15:00Z',
   },
   {
-    id: 'gw-002',
-    storeId: 'store-001',
+    id: 2,
+    storeId: 1,
     status: 'degraded',
     lastHeartbeatAt: '2026-02-26T09:10:00Z',
   },
   {
-    id: 'gw-003',
-    storeId: 'store-002',
+    id: 3,
+    storeId: 2,
     status: 'offline',
     lastHeartbeatAt: '2026-02-26T08:02:00Z',
   },
 ];
 
 const shelfLocations: ShelfLocation[] = [
-  { id: 'sl-001', storeId: 'store-001', aisle: 'A1', level: 'L1' },
-  { id: 'sl-002', storeId: 'store-001', aisle: 'A2', level: 'L2' },
-  { id: 'sl-003', storeId: 'store-002', aisle: 'B1', level: 'L1' },
+  { id: 1, storeId: 1, aisle: 1, level: 1 },
+  { id: 2, storeId: 1, aisle: 2, level: 2 },
+  { id: 3, storeId: 2, aisle: 1, level: 1 },
 ];
 
 const products: Product[] = [
   {
-    id: 'prd-001',
+    id: 1,
     sku: 'CF-AR-1KG',
     name: 'Arabica Coffee Beans',
     attributesJson: { roast: 'medium', origin: 'Colombia', organic: true },
     price: 22.9,
   },
   {
-    id: 'prd-002',
+    id: 2,
     sku: 'ML-OT-1L',
     name: 'Organic Oat Milk',
     attributesJson: { dairyFree: true, volumeMl: 1000 },
     price: 4.5,
   },
   {
-    id: 'prd-003',
+    id: 3,
     sku: 'CH-DK-90G',
     name: 'Dark Chocolate Bar',
     attributesJson: { cocoaPct: 75, vegan: true },
@@ -66,43 +66,43 @@ const products: Product[] = [
 
 const tags: Tag[] = [
   {
-    id: 'tag-001',
+    id: 1,
     batteryPct: 88,
     status: 'active',
-    productId: 'prd-001',
-    shelfLocationId: 'sl-001',
+    productId: 1,
+    shelfLocationId: 1,
   },
   {
-    id: 'tag-002',
+    id: 2,
     batteryPct: 24,
     status: 'low-battery',
-    productId: 'prd-002',
-    shelfLocationId: 'sl-002',
+    productId: 2,
+    shelfLocationId: 2,
   },
   {
-    id: 'tag-003',
+    id: 3,
     batteryPct: 0,
     status: 'offline',
-    productId: 'prd-003',
-    shelfLocationId: 'sl-003',
+    productId: 3,
+    shelfLocationId: 3,
   },
 ];
 
 const tagPayloads: TagPayload[] = [
   {
-    id: 'tp-001',
-    payloadJson: { tagId: 'tag-001', title: 'Arabica Coffee Beans', price: 22.9 },
+    id: 1,
+    payloadJson: { tagId: 1, title: 'Arabica Coffee Beans', price: 22.9 },
   },
   {
-    id: 'tp-002',
-    payloadJson: { tagId: 'tag-002', title: 'Organic Oat Milk', price: 4.5 },
+    id: 2,
+    payloadJson: { tagId: 2, title: 'Organic Oat Milk', price: 4.5 },
   },
 ];
 
 const promotions: Promotion[] = [
   {
-    id: 'promo-001',
-    productId: 'prd-001',
+    id: 1,
+    productId: 1,
     promoType: 'percentage',
     value: 10,
     startAt: '2026-02-25T00:00:00Z',
@@ -110,13 +110,13 @@ const promotions: Promotion[] = [
     priority: 1,
   },
   {
-    id: 'promo-002',
-    productId: 'prd-003',
-    promoType: 'fixed-amount',
-    value: 0.5,
+    id: 2,
+    productId: 3,
+    promoType: 'percentage',
+    value: 15,
     startAt: '2026-02-26T00:00:00Z',
     endAt: '2026-03-01T23:59:59Z',
-    priority: 2,
+    priority: 1,
   },
 ];
 

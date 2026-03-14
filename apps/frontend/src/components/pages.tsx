@@ -184,12 +184,12 @@ export function DashboardPage({
           </div>
           <div className="space-y-3">
             {tags.map((tag) => {
-              const product = productById.get(tag.productId);
-              const shelfLocation = shelfLocationById.get(tag.shelfLocationId);
+              const product = tag.productId === null ? undefined : productById.get(tag.productId);
+              const shelfLocation = tag.shelfLocationId === null ? undefined : shelfLocationById.get(tag.shelfLocationId);
               return (
                 <div key={tag.id} className="rounded-lg border border-border bg-background px-3 py-2">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-medium">{product?.name ?? tag.productId}</p>
+                    <p className="font-medium">{product?.name ?? tag.productId ?? 'Unassigned product'}</p>
                     <span className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${statusPillClass(tag.status)}`}>
                       {tag.status}
                     </span>
