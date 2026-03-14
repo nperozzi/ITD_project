@@ -1,13 +1,32 @@
 """HTTP routes for browser UI and API endpoints."""
 
 import random
+from contextlib import contextmanager
 from flask import Blueprint, request, jsonify, current_app
 from mqtt_client import publish_price
 from db.crud.crud_product import update_product
 from db.crud.crud_tag import update_tag
+from services.product_service import (
+    ProductValidationError,
+    create_product_from_payload,
+    delete_product_by_id,
+    get_product_details,
+    list_all_products,
+    update_product_from_payload,
+)
 
 # Blueprint keeps route registration organized.
 api = Blueprint("api", __name__)
+
+
+@contextmanager
+def _session_scope():
+    db = current_app.config.get("db")
+    if db is None:
+        raise RuntimeError("Database is not configured for this app.")
+
+    with db.SessionLocal() as session:
+        yield session
 
 
 def _dashboard_data() -> dict[str, list[dict[str, object]]]:
@@ -169,8 +188,58 @@ def shelf_locations():
 
 
 @api.route("/api/products")
-def products():
-    return jsonify(_dashboard_data()["products"])
+def get_all_products_route():
+    with _session_scope() as session:
+        return jsonify(list_all_products(session))
+
+
+@api.route("/api/products/<int:product_id>")
+def get_product_route(product_id: int):
+    with _session_scope() as session:
+        product = get_product_details(session, product_id)
+
+    if product is None:
+        return jsonify({"error": "Product not found."}), 404
+
+    return jsonify(product)
+
+
+@api.route("/api/products", methods=["POST"])
+def create_product_route():
+    payload = request.get_json(silent=True)
+    try:
+        with _session_scope() as session:
+            product = create_product_from_payload(session, payload or {})
+    except ProductValidationError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    return jsonify(product), 201
+
+
+@api.route("/api/products/<int:product_id>", methods=["PATCH"])
+def update_product_route(product_id: int):
+    payload = request.get_json(silent=True)
+    try:
+        with _session_scope() as session:
+            product = update_product_from_payload(session, product_id, payload or {})
+    except ProductValidationError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    if product is None:
+        return jsonify({"error": "Product not found."}), 404
+
+    return jsonify(product)
+
+
+@api.route("/api/products/<int:product_id>", methods=["DELETE"])
+def delete_product_route(product_id: int):
+    with _session_scope() as session:
+        is_deleted = delete_product_by_id(session, product_id)
+
+    if not is_deleted:
+        return jsonify({"error": "Product not found."}), 404
+
+    return jsonify({"status": "deleted", "id": product_id})
 
 
 @api.route("/api/tags")
