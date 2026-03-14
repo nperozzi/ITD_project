@@ -25,6 +25,11 @@ def get_all_tagpayloads (db: Session) -> list[TagPayload]:
     stmt = select(TagPayload)
     return db.scalars(stmt).all()
 
+
+def get_latest_tagpayload_for_tag(db: Session, tag_id: int) -> TagPayload | None:
+    stmt = select(TagPayload).where(TagPayload.tag_id == tag_id).order_by(TagPayload.id.desc())
+    return db.scalars(stmt).first()
+
 def update_tagpayload(db: Session, tagpayload_id: int, **kwargs: Any) -> TagPayload | None:
     tagpayload = db.get(TagPayload, tagpayload_id)
     if not tagpayload:
