@@ -158,7 +158,7 @@ def _upsert_promotions(session: Session) -> None:
         1,
         {
             "product_id": 1,
-            "discount_pct": 10,
+            "discount_percentage": 10,
             "start_at": datetime(2026, 2, 25, 0, 0, 0),
             "end_at": datetime(2026, 3, 3, 23, 59, 59),
         },
@@ -169,7 +169,7 @@ def _upsert_promotions(session: Session) -> None:
         2,
         {
             "product_id": 3,
-            "discount_pct": 15,
+            "discount_percentage": 15,
             "start_at": datetime(2026, 2, 26, 0, 0, 0),
             "end_at": datetime(2026, 3, 1, 23, 59, 59),
         },

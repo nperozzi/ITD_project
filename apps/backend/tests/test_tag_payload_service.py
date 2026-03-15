@@ -29,7 +29,7 @@ def test_build_payload_for_tag_applies_active_percentage_promotion():
     create_promotion(
         db,
         product_id=product.id,
-        discount_pct=25,
+        discount_percentage=25,
         start_at=now - timedelta(days=1),
         end_at=now + timedelta(days=1),
     )

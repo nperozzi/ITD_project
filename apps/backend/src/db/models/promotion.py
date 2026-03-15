@@ -12,7 +12,7 @@ class Promotion(Base):
     __tablename__ = "promotion"
 
     __table_args__ = (
-    CheckConstraint("discount_pct >= 0 AND discount_pct <= 100"),
+    CheckConstraint("discount_percentage >= 0 AND discount_percentage <= 100"),
     )
 
     #Attributes
@@ -21,7 +21,7 @@ class Promotion(Base):
         ForeignKey("product.id"),
         nullable=True
     )
-    discount_pct: Mapped [int] = mapped_column (Integer)
+    discount_percentage: Mapped [int] = mapped_column (Integer)
     start_at: Mapped [DateTime] = mapped_column (DateTime)
     end_at: Mapped [DateTime] = mapped_column (DateTime)
 

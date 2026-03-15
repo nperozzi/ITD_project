@@ -54,7 +54,7 @@ def test_get_tag_payload_returns_generated_debug_payload():
             create_promotion(
                 session,
                 product_id=product_id,
-                discount_pct=10,
+                discount_percentage=10,
                 start_at=now - timedelta(hours=1),
                 end_at=now + timedelta(hours=1),
             )

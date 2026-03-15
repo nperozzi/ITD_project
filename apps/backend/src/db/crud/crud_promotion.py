@@ -9,13 +9,13 @@ from db.models.promotion import Promotion
 def create_promotion(
     db: Session,
     product_id: Optional[int],
-    discount_pct: int,
+    discount_percentage: int,
     start_at: datetime,
     end_at: datetime,
 ) -> Promotion:
     promotion = Promotion(
         product_id=product_id,
-        discount_pct=discount_pct,
+        discount_percentage=discount_percentage,
         start_at=start_at,
         end_at=end_at,
     )

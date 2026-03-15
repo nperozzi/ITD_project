@@ -29,7 +29,7 @@ def test_create_and_get_promotion():
     promotion = create_promotion(
         db,
         product_id=product.id,
-        discount_pct=20,
+        discount_percentage=20,
         start_at=datetime(2026, 3, 1, 10, 0, 0),
         end_at=datetime(2026, 3, 10, 10, 0, 0),
     )
@@ -37,7 +37,7 @@ def test_create_and_get_promotion():
     fetched = get_promotion(db, promotion.id)
     assert fetched is not None
     assert fetched.product_id == product.id
-    assert fetched.discount_pct == 20
+    assert fetched.discount_percentage == 20
 
 
 def test_get_all_promotions():
@@ -46,7 +46,7 @@ def test_get_all_promotions():
     create_promotion(db, None, 15, datetime(2026, 3, 3), datetime(2026, 3, 4))
     promotions = get_all_promotions(db)
     assert len(promotions) == 2
-    assert {promotion.discount_pct for promotion in promotions} == {10, 15}
+    assert {promotion.discount_percentage for promotion in promotions} == {10, 15}
 
 
 def test_update_promotion():
@@ -55,17 +55,17 @@ def test_update_promotion():
     updated = update_promotion(
         db,
         promotion.id,
-        discount_pct=25,
+        discount_percentage=25,
         end_at=datetime(2026, 3, 5),
     )
     assert updated is not None
-    assert updated.discount_pct == 25
+    assert updated.discount_percentage == 25
     assert updated.end_at == datetime(2026, 3, 5)
 
 
 def test_update_unknown_promotion_returns_none():
     db = make_session()
-    assert update_promotion(db, 999, discount_pct=50) is None
+    assert update_promotion(db, 999, discount_percentage=50) is None
 
 
 def test_delete_promotion():

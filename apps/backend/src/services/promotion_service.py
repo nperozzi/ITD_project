@@ -27,7 +27,7 @@ def promotion_to_dictionary(promotion: Promotion) -> dict[str, Any]:
         "id": promotion.id,
         "productId": promotion.product_id,
         "promoType": "percentage",
-        "value": promotion.discount_pct,
+        "value": promotion.discount_percentage,
         "startAt": _serialize_datetime(promotion.start_at),
         "endAt": _serialize_datetime(promotion.end_at),
         "priority": DEFAULT_PRIORITY,
@@ -88,7 +88,7 @@ def _validated_promotion_fields(payload: dict[str, Any], *, partial: bool) -> di
         raise PromotionValidationError("Field 'promoType' is required.")
 
     if "value" in payload:
-        data["discount_pct"] = _validate_discount_pct(payload["value"])
+        data["discount_percentage"] = _validate_discount_percentage(payload["value"])
     elif not partial:
         raise PromotionValidationError("Field 'value' is required.")
 
@@ -123,7 +123,7 @@ def _validate_optional_int(value: Any, field_name: str) -> int | None:
     return value
 
 
-def _validate_discount_pct(value: Any) -> int:
+def _validate_discount_percentage(value: Any) -> int:
     if not isinstance(value, int) or isinstance(value, bool):
         raise PromotionValidationError("Field 'value' must be an integer percentage.")
     if not 0 <= value <= 100:

@@ -64,7 +64,7 @@ def build_payload_for_tag(db: Session, tag_id: int) -> dict[str, Any]:
 
     active_promotion = _get_active_promotion_for_product(db, product.id)
     base_price = float(product.price)
-    final_price = _apply_percentage_discount(base_price, active_promotion.discount_pct) if active_promotion else base_price
+    final_price = _apply_percentage_discount(base_price, active_promotion.discount_percentage) if active_promotion else base_price
     tag_summary = tag_to_dictionary(tag)
 
     return {
@@ -78,7 +78,7 @@ def build_payload_for_tag(db: Session, tag_id: int) -> dict[str, Any]:
         "promotion": (
             {
                 "type": "percentage",
-                "value": active_promotion.discount_pct,
+                "value": active_promotion.discount_percentage,
                 "startAt": _serialize_datetime(active_promotion.start_at),
                 "endAt": _serialize_datetime(active_promotion.end_at),
             }
@@ -101,11 +101,11 @@ def _get_active_promotion_for_product(db: Session, product_id: int) -> Promotion
     ]
     if not promotions:
         return None
-    return max(promotions, key=lambda promotion: (promotion.discount_pct, promotion.id))
+    return max(promotions, key=lambda promotion: (promotion.discount_percentage, promotion.id))
 
 
-def _apply_percentage_discount(price: float, discount_pct: int) -> float:
-    return price * (1 - (discount_pct / 100))
+def _apply_percentage_discount(price: float, discount_percentage: int) -> float:
+    return price * (1 - (discount_percentage / 100))
 
 
 def _serialize_datetime(value: datetime) -> str:
