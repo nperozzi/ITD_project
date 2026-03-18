@@ -79,8 +79,8 @@ def build_payload_for_tag(db: Session, tag_id: int) -> dict[str, Any]:
             {
                 "type": "percentage",
                 "value": active_promotion.discount_percentage,
-                "startAt": _serialize_datetime(active_promotion.start_at),
-                "endAt": _serialize_datetime(active_promotion.end_at),
+                "startAt": _convert_datetime_to_str(active_promotion.start_at),
+                "endAt": _convert_datetime_to_str(active_promotion.end_at),
             }
             if active_promotion
             else None
@@ -88,7 +88,7 @@ def build_payload_for_tag(db: Session, tag_id: int) -> dict[str, Any]:
         "tagStatus": tag_summary["status"],
         "batteryPct": tag_summary["batteryPct"],
         "shelfLocationId": tag.shelf_location_id,
-        "generatedAt": _serialize_datetime(datetime.now(UTC)),
+        "generatedAt": _convert_datetime_to_str(datetime.now(UTC)),
     }
 
 
@@ -108,7 +108,7 @@ def _apply_percentage_discount(price: float, discount_percentage: int) -> float:
     return price * (1 - (discount_percentage / 100))
 
 
-def _serialize_datetime(value: datetime) -> str:
+def _convert_datetime_to_str(value: datetime) -> str:
     if value.tzinfo is not None:
         value = value.astimezone(UTC).replace(tzinfo=None)
     return value.isoformat() + "Z"
