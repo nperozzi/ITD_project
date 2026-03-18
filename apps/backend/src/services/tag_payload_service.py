@@ -8,14 +8,20 @@ from sqlalchemy.orm import Session
 from db.crud.crud_product import get_product
 from db.crud.crud_promotion import get_all_promotions
 from db.crud.crud_tag import get_tag
-from db.crud.crud_tagpayload import create_tagpayload, get_latest_tagpayload_for_tag
+from db.crud.crud_tagpayload import create_tagpayload, get_latest_tagpayload_for_tag, get_all_tagpayloads
 from db.models.promotion import Promotion
+from db.models.tagpayload import TagPayload
 from mqtt_client import publish_tag_payload
 from services.tag_service import tag_to_dictionary
 
 
 class TagPayloadError(ValueError):
     """Raised when a tag payload cannot be generated or published."""
+
+
+
+def list_all_tagpayloads(db: Session) -> list[dict[str, Any]]:
+    return [_convert_tagpayload_to_dict(tagpayload) for tagpayload in get_all_tagpayloads(db)]
 
 
 def get_debug_payload_for_tag(db: Session, tag_id: int) -> dict[str, Any]:
@@ -112,3 +118,9 @@ def _convert_datetime_to_str(value: datetime) -> str:
     if value.tzinfo is not None:
         value = value.astimezone(UTC).replace(tzinfo=None)
     return value.isoformat() + "Z"
+
+def _convert_tagpayload_to_dict(tagpayload: TagPayload) -> dict[str, Any]:
+    return {
+        "id": tagpayload.id,
+        "payloadJson": tagpayload.payload_json,
+    }

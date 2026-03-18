@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from flask import jsonify
 
-from services.tagpayload_service import list_all_tagpayloads
+from services.tag_payload_service import list_all_tagpayloads
 
 from . import api
 from .shared import session_scope
