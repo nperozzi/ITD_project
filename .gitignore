@@ -14,5 +14,6 @@ dist/
 # VScode configs
 *.vscode
 
-apps/tag/build
+# Exclude build directory from being tracked.
+apps/tag/build/
 
