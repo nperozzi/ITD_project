@@ -44,11 +44,6 @@ def set_db(db_instance):
     global db
     db = db_instance
 
-def set_db(db_instance):
-    # Duplicate definition kept for behavior compatibility with existing code.
-    global db
-    db = db_instance
-
 def publish_price(price):
     # Publish price update to backend->gateway topic namespace.
     payload = json.dumps({"price": price})
