@@ -4,7 +4,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from db.crud.crud_shelflocation import (
+from db.crud.shelflocation import (
     create_shelflocation,
     delete_shelflocation,
     get_all_shelflocations,

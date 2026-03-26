@@ -5,10 +5,10 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from db.crud.crud_product import get_product
-from db.crud.crud_promotion import get_all_promotions
-from db.crud.crud_tag import get_tag
-from db.crud.crud_tagpayload import create_tagpayload, get_latest_tagpayload_for_tag, get_all_tagpayloads
+from db.crud.product import get_product
+from db.crud.promotion import get_all_promotions
+from db.crud.tag import get_tag
+from db.crud.tagpayload import create_tagpayload, get_latest_tagpayload_for_tag, get_all_tagpayloads
 from db.models.promotion import Promotion
 from db.models.tagpayload import TagPayload
 from mqtt_client import publish_tag_payload

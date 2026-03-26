@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.base import Base
-from db.crud.crud_product import create_product
-from db.crud.crud_promotion import (
+from db.crud.product import create_product
+from db.crud.promotion import (
     create_promotion,
     delete_promotion,
     get_all_promotions,

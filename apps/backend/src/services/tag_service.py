@@ -4,7 +4,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from db.crud.crud_tag import create_tag, delete_tag, get_all_tags, get_tag, update_tag
+from db.crud.tag import create_tag, delete_tag, get_all_tags, get_tag, update_tag
 from db.models.tag import Status, Tag
 
 

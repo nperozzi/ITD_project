@@ -5,7 +5,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from db.crud.crud_gateway import create_gateway, delete_gateway, get_all_gateways, get_gateway, update_gateway
+from db.crud.gateway import create_gateway, delete_gateway, get_all_gateways, get_gateway, update_gateway
 from db.models.gateway import Gateway, Status
 
 

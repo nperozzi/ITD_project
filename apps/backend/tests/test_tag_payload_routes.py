@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.base import Base
-from db.crud.crud_promotion import create_promotion
+from db.crud.promotion import create_promotion
 from db.models.shelfLocation import ShelfLocation  # noqa: F401
 from db.models.tag import Tag  # noqa: F401
 from routes import api

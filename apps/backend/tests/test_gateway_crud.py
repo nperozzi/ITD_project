@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.base import Base
-from db.crud.crud_store import create_store
-from db.crud.crud_gateway import (
+from db.crud.store import create_store
+from db.crud.gateway import (
     create_gateway,
     get_gateway,
     get_all_gateways,

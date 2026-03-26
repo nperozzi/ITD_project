@@ -4,7 +4,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from db.crud.crud_store import create_store, delete_store, get_all_stores, get_store, update_store
+from db.crud.store import create_store, delete_store, get_all_stores, get_store, update_store
 from db.models.store import Store
 
 

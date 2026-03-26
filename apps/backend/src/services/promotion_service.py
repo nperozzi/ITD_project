@@ -5,7 +5,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from db.crud.crud_promotion import (
+from db.crud.promotion import (
     create_promotion,
     delete_promotion,
     get_all_promotions,

@@ -6,8 +6,8 @@ import random
 
 from flask import current_app, jsonify, request
 
-from db.crud.crud_product import update_product
-from db.crud.crud_tag import update_tag
+from db.crud.product import update_product
+from db.crud.tag import update_tag
 from mqtt_client import publish_price
 
 from . import api

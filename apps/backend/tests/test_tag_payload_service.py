@@ -6,9 +6,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.base import Base
-from db.crud.crud_product import create_product
-from db.crud.crud_promotion import create_promotion
-from db.crud.crud_tag import create_tag
+from db.crud.product import create_product
+from db.crud.promotion import create_promotion
+from db.crud.tag import create_tag
 from db.models.shelfLocation import ShelfLocation  # noqa: F401
 from db.models.tag import Status
 from services.tag_payload_service import build_payload_for_tag

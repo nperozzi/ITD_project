@@ -1,7 +1,7 @@
 from flask import current_app
 from typing import Any
 import random
-from db.crud.crud_tag import update_tag
+from db.crud.tag import update_tag
 
 def register_socketio_handlers(socketio: Any, state) -> None:
     """

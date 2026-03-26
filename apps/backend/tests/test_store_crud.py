@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from db.base import Base
 
 
-from db.crud.crud_store import (
+from db.crud.store import (
     create_store,
     get_store,
     get_all_stores,

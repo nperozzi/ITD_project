@@ -2,8 +2,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.base import Base
-from db.crud.crud_tag import create_tag
-from db.crud.crud_tagpayload import (
+from db.crud.tag import create_tag
+from db.crud.tagpayload import (
     create_tagpayload,
     delete_tagpayload,
     get_all_tagpayloads,

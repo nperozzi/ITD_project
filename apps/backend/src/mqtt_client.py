@@ -10,7 +10,7 @@ import json
 import random
 import sys
 import paho.mqtt.client as mqtt
-from db.crud.crud_tag import get_tag, update_tag
+from db.crud.tag import get_tag, update_tag
 
 BROKER = "mosquitto"
 PORT = 1883

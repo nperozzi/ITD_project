@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 from sqlalchemy.orm import Session
-from db.crud.crud_product import (
+from db.crud.product import (
     create_product,
     delete_product,
     get_all_products,
