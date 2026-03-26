@@ -10,6 +10,7 @@ from db.crud.product import (
     update_product,
 )
 from db.models.product import Product
+from services.tag_payload_service import publish_payloads_for_product
 
 
 class ProductValidationError(ValueError):
@@ -51,6 +52,7 @@ def update_product_from_payload(db: Session, product_id: int, payload: dict[str,
     product = update_product(db, product_id, **product_data)
     if product is None:
         return None
+    publish_payloads_for_product(db, product.id)
     return convert_product_obj_to_dict(product)
 
 

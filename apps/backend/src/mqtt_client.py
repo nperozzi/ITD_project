@@ -8,12 +8,15 @@ Responsibilities:
 
 import json
 import random
+import re
 import sys
 import paho.mqtt.client as mqtt
 from db.crud.tag import get_tag, update_tag
+from db.crud.tagpayload import get_latest_unacknowledged_tagpayload_for_tag, update_tagpayload
 
 BROKER = "mosquitto"
 PORT = 1883
+ACK_TOPIC_PATTERN = re.compile(r"^g-b/tag(?P<tag_id>\d+)/ack$")
 
 db = None
 app = None
@@ -64,6 +67,7 @@ def on_connect(client, userdata, flags, rc, properties=None):
     
     # Listen for battery values coming back from gateway/tag.
     client.subscribe("b-g/tag1/battery")
+    client.subscribe("g-b/+/ack")
 
 def on_message(client, userdata, message):
     # Called whenever a subscribed MQTT message arrives.
@@ -73,6 +77,13 @@ def on_message(client, userdata, message):
     # Parse payload, persist battery level, and push to web clients.
     try:
         data = json.loads(payload)
+
+        if _is_ack_message(message.topic, data) and db:
+            tag_id = _extract_tag_id_from_ack(message.topic, data)
+            if tag_id is not None:
+                with db.SessionLocal() as session:
+                    _acknowledge_latest_payload_for_tag(session, tag_id)
+            return
 
         if "battery" in data and db:
             # Randomize on backend so UI always depends on backend-provided battery.
@@ -90,3 +101,28 @@ def on_message(client, userdata, message):
                     
     except (json.JSONDecodeError, KeyError):
         pass
+
+
+def _is_ack_message(topic: str, data: dict) -> bool:
+    return bool(ACK_TOPIC_PATTERN.match(topic)) and data.get("ack") is True
+
+
+def _extract_tag_id_from_ack(topic: str, data: dict) -> int | None:
+    payload_tag_id = data.get("tagId")
+    if isinstance(payload_tag_id, int) and payload_tag_id > 0:
+        return payload_tag_id
+
+    match = ACK_TOPIC_PATTERN.match(topic)
+    if not match:
+        return None
+
+    return int(match.group("tag_id"))
+
+
+def _acknowledge_latest_payload_for_tag(session, tag_id: int) -> bool:
+    tagpayload = get_latest_unacknowledged_tagpayload_for_tag(session, tag_id)
+    if tagpayload is None:
+        return False
+
+    update_tagpayload(session, tagpayload.id, acknowledged=True)
+    return True

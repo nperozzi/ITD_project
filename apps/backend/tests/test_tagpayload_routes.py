@@ -38,9 +38,11 @@ def test_get_tagpayloads_returns_seeded_rows():
         {
             "id": 1,
             "payloadJson": {"tagId": 1, "title": "Arabica Coffee Beans", "basePrice": 22.9, "finalPrice": 20.61},
+            "acknowledged": False,
         },
         {
             "id": 2,
             "payloadJson": {"tagId": 2, "title": "Organic Oat Milk", "basePrice": 4.5, "finalPrice": 4.5},
+            "acknowledged": False,
         },
     ]

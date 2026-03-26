@@ -7,6 +7,7 @@ from db.crud.tagpayload import (
     create_tagpayload,
     delete_tagpayload,
     get_all_tagpayloads,
+    get_latest_unacknowledged_tagpayload_for_tag,
     get_tagpayload,
     update_tagpayload,
 )
@@ -40,6 +41,7 @@ def test_create_and_get_tagpayload():
     assert fetched is not None
     assert fetched.tag_id == tag.id
     assert fetched.payload_json == {"title": "Coffee", "price": 22.9}
+    assert fetched.acknowledged is False
 
 
 def test_get_all_tagpayloads():
@@ -58,9 +60,10 @@ def test_update_tagpayload():
     tag = create_tag(db, status=Status.ONLINE)
     tagpayload = create_tagpayload(db, tag_id=tag.id, payload_json={"price": 5.0})
 
-    updated = update_tagpayload(db, tagpayload.id, payload_json={"price": 6.5})
+    updated = update_tagpayload(db, tagpayload.id, payload_json={"price": 6.5}, acknowledged=True)
     assert updated is not None
     assert updated.payload_json == {"price": 6.5}
+    assert updated.acknowledged is True
 
 
 def test_update_tagpayload_ignores_unknown_fields():
@@ -77,6 +80,18 @@ def test_update_tagpayload_ignores_unknown_fields():
 def test_update_unknown_tagpayload_returns_none():
     db = make_session()
     assert update_tagpayload(db, 999, payload_json={"x": 2}) is None
+
+
+def test_get_latest_unacknowledged_tagpayload_for_tag():
+    db = make_session()
+    tag = create_tag(db, status=Status.ONLINE)
+    create_tagpayload(db, tag_id=tag.id, payload_json={"v": 1}, acknowledged=True)
+    pending = create_tagpayload(db, tag_id=tag.id, payload_json={"v": 2}, acknowledged=False)
+
+    fetched = get_latest_unacknowledged_tagpayload_for_tag(db, tag.id)
+
+    assert fetched is not None
+    assert fetched.id == pending.id
 
 
 def test_delete_tagpayload():

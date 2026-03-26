@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from unittest.mock import patch
+
 from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -100,6 +102,49 @@ def test_patch_product_updates_existing_row():
         "attributesJson": {"size": "M"},
         "price": 4.0,
     }
+
+
+def test_patch_product_publishes_payloads_for_assigned_tags():
+    client = make_client()
+    product_response = client.post(
+        "/api/products",
+        json={
+            "sku": "SKU-200",
+            "name": "Coffee Beans",
+            "attributesJson": {"origin": "Kenya"},
+            "price": 18.5,
+        },
+    )
+    product_id = product_response.get_json()["id"]
+    tag_response = client.post(
+        "/api/tags",
+        json={"status": "active", "batteryPct": 90, "productId": product_id, "shelfLocationId": None},
+    )
+    tag_id = tag_response.get_json()["id"]
+
+    with patch("services.tag_payload_service.publish_tag_payload") as publish_mock:
+        response = client.patch(
+            f"/api/products/{product_id}",
+            json={"price": 19.0},
+        )
+
+    assert response.status_code == 200
+    publish_mock.assert_called_once()
+    assert publish_mock.call_args.args[0] == tag_id
+    published_payload = publish_mock.call_args.args[1]
+    assert published_payload["productId"] == product_id
+    assert published_payload["basePrice"] == 19.0
+    assert published_payload["finalPrice"] == 19.0
+
+    payloads_response = client.get("/api/tag-payloads")
+    assert payloads_response.status_code == 200
+    assert payloads_response.get_json() == [
+        {
+            "id": 1,
+            "payloadJson": published_payload,
+            "acknowledged": False,
+        }
+    ]
 
 
 def test_delete_product_removes_existing_row():
