@@ -7,14 +7,17 @@ from sqlalchemy.orm import Session
 from db.crud.product import get_product
 from db.crud.tag import create_tag, delete_tag, get_all_tags, get_tag, update_tag
 from db.models.tag import Status, Tag
-from services.tag_payload_service import publish_payload_for_tag
-
-
 class TagValidationError(ValueError):
     """Raised when incoming tag payloads are invalid."""
 
 
 LOW_BATTERY_THRESHOLD = 25
+
+
+def publish_payload_for_tag(db: Session, tag_id: int) -> dict[str, Any]:
+    from services.tag_payload_service import publish_payload_for_tag as _publish_payload_for_tag
+
+    return _publish_payload_for_tag(db, tag_id)
 
 
 def tag_to_dictionary(tag: Tag) -> dict[str, Any]:

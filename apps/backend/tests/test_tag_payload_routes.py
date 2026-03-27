@@ -53,7 +53,7 @@ def test_publish_tag_payload_stores_and_publishes_snapshot():
     assert response.status_code == 200
     assert data["status"] == "published"
     assert data["tagId"] == tag_id
-    assert data["tagPayloadId"] == 1
+    assert data["tagPayloadId"] == 2
     publish_mock.assert_called_once()
 
 

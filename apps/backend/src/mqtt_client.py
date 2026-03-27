@@ -11,7 +11,6 @@ import sys
 import paho.mqtt.client as mqtt
 from db.crud.tag import update_tag
 from db.crud.tagpayload import get_latest_unacknowledged_tagpayload_for_tag, update_tagpayload
-from services.tag_service import tag_to_dictionary
 
 BROKER = "mosquitto"
 PORT = 1883
@@ -88,6 +87,8 @@ def on_message(client, userdata, message):
                 tag = update_tag(session, tag_id, battery_pct=battery)
                 if tag is None:
                     return
+                from services.tag_service import tag_to_dictionary
+
                 tag_summary = tag_to_dictionary(tag)
 
             if app and socketio:
