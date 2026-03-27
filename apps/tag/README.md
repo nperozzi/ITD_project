@@ -23,7 +23,7 @@ This test is useful for verifying that the board can advertise over BLE, accept 
 ## Hardware Requirements
 
 - ESP32-H2-DevKitM-1
-- USB-A to USB-C (Type C) cable
+- USB-A to USB-C (Type C) cable (or cable that has a male USB-C plug at one end at least). Must support data AND power delivery.
 - Computer running Windows, Linux, or macOS
 - nRF Connect app (available on the App Store or Google Play)
 
