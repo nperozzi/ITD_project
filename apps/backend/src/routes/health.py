@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import random
-
 from flask import current_app, jsonify, request
 
 from db.crud.product import update_product
-from db.crud.tag import update_tag
+from db.crud.tag import get_tag
 from mqtt_client import publish_price
 
 from . import api
@@ -33,11 +31,18 @@ def set_price():
 
 @api.route("/battery")
 def battery():
-    battery_value = random.randint(1, 100)
+    tag_id = request.args.get("tagId", default=1, type=int)
+    if tag_id is None or tag_id <= 0:
+        return jsonify({"error": "Query parameter 'tagId' must be a positive integer."}), 400
 
     db = current_app.config.get("db")
-    if db:
-        with db.SessionLocal() as session:
-            update_tag(session, 1, product_id=1, battery_pct=battery_value)
+    if db is None:
+        raise RuntimeError("Database is not configured for this app.")
 
-    return jsonify({"battery": battery_value})
+    with db.SessionLocal() as session:
+        tag = get_tag(session, tag_id)
+
+    if tag is None:
+        return jsonify({"error": "Tag not found."}), 404
+
+    return jsonify({"battery": tag.battery_pct})
