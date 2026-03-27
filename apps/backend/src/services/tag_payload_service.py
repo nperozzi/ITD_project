@@ -11,7 +11,6 @@ from db.crud.tag import get_tag
 from db.crud.tagpayload import (
     create_tagpayload,
     get_all_tagpayloads,
-    get_latest_tagpayload_for_tag,
     get_latest_unacknowledged_tagpayload_for_tag,
     update_tagpayload,
 )
@@ -28,22 +27,6 @@ class TagPayloadError(ValueError):
 
 def list_all_tagpayloads(db: Session) -> list[dict[str, Any]]:
     return [_convert_tagpayload_to_dict(tagpayload) for tagpayload in get_all_tagpayloads(db)]
-
-
-def get_debug_payload_for_tag(db: Session, tag_id: int) -> dict[str, Any]:
-    tag = get_tag(db, tag_id)
-    if tag is None:
-        raise TagPayloadError("Tag not found.")
-
-    payload = build_payload_for_tag(db, tag_id)
-    stored_payload = get_latest_tagpayload_for_tag(db, tag_id)
-
-    return {
-        "tagId": tag_id,
-        "payload": payload,
-        "storedPayloadId": stored_payload.id if stored_payload else None,
-        "storedPayload": stored_payload.payload_json if stored_payload else None,
-    }
 
 
 def publish_payload_for_tag(db: Session, tag_id: int) -> dict[str, Any]:
