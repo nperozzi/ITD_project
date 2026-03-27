@@ -19,20 +19,10 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.alter_column(
-        "promotion",
-        "discount_pct",
-        new_column_name="discount_percentage",
-        existing_type=sa.Integer(),
-        existing_nullable=False,
-    )
+    # Fresh databases never create discount_pct, so this follow-up revision
+    # also remains a no-op.
+    pass
 
 
 def downgrade() -> None:
-    op.alter_column(
-        "promotion",
-        "discount_percentage",
-        new_column_name="discount_pct",
-        existing_type=sa.Integer(),
-        existing_nullable=False,
-    )
+    pass

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from db.models.gateway import Gateway, Status as GatewayStatus
@@ -22,6 +23,8 @@ def seed_demo_data(session: Session) -> None:
     _upsert_tags(session)
     _upsert_promotions(session)
     _upsert_tagpayloads(session)
+    session.commit()
+    _sync_identity_sequences(session)
     session.commit()
 
 
@@ -216,3 +219,24 @@ def _upsert(session: Session, model: type, record_id: int, values: dict) -> None
 
     for key, value in values.items():
         setattr(record, key, value)
+
+
+def _sync_identity_sequences(session: Session) -> None:
+    if session.bind is None or session.bind.dialect.name != "postgresql":
+        return
+
+    seeded_models = (Store, Gateway, ShelfLocation, Product, Tag, Promotion, TagPayload)
+    for model in seeded_models:
+        table_name = model.__tablename__
+        quoted_table_name = f'"{table_name}"'
+        session.execute(
+            text(
+                f"""
+                SELECT setval(
+                    pg_get_serial_sequence('{quoted_table_name}', 'id'),
+                    COALESCE((SELECT MAX(id) FROM {quoted_table_name}), 1),
+                    true
+                )
+                """
+            )
+        )
