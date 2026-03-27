@@ -40,7 +40,7 @@ def test_ack_message_marks_latest_payload_as_acknowledged():
 
     message = SimpleNamespace(
         topic=f"g-b/tag{tag.id}/ack",
-        payload=json.dumps({"ack": True}).encode(),
+        payload=json.dumps({"tagId": tag.id, "ack": True}).encode(),
     )
 
     mqtt_client.on_message(None, None, message)

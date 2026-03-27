@@ -117,12 +117,7 @@ def _extract_tag_id_from_ack(topic: str, data: dict) -> int | None:
     payload_tag_id = data.get("tagId")
     if isinstance(payload_tag_id, int) and payload_tag_id > 0:
         return payload_tag_id
-
-    match = ACK_TOPIC_PATTERN.match(topic)
-    if not match:
-        return None
-
-    return int(match.group("tag_id"))
+    return None
 
 
 def _extract_tag_id_from_advertisement_topic(topic: str) -> int | None:
