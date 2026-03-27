@@ -11,7 +11,6 @@ import type {
   ShelfLocation,
   Store,
   Tag,
-  TagPayload,
 } from '../types';
 
 function formatMoney(value: number): string {
@@ -85,7 +84,6 @@ export interface DashboardPageProps {
   shelfLocations: ShelfLocation[];
   products: Product[];
   tags: Tag[];
-  tagPayloads: TagPayload[];
   promotions: Promotion[];
 }
 
@@ -95,7 +93,6 @@ export function DashboardPage({
   shelfLocations,
   products,
   tags,
-  tagPayloads,
   promotions,
 }: DashboardPageProps): JSX.Element {
   const { battery, isConnected } = useLiveBattery();
@@ -216,21 +213,6 @@ export function DashboardPage({
           </div>
         </Card>
       </div>
-
-      <Card className="space-y-3 rounded-xl">
-        <div className="flex items-center justify-between">
-          <h4 className="font-semibold">Payload readiness</h4>
-          <p className="text-sm text-muted-foreground">{tagPayloads.length} payload templates available</p>
-        </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {tagPayloads.map((payload) => (
-            <div key={payload.id} className="rounded-lg border border-border bg-background p-3">
-              <p className="font-medium">{payload.id}</p>
-              <p className="text-xs text-muted-foreground">{JSON.stringify(payload.payloadJson)}</p>
-            </div>
-          ))}
-        </div>
-      </Card>
 
       <Card className="space-y-4 rounded-xl">
         <div className="flex items-center justify-between">
@@ -463,30 +445,6 @@ export function TagsPage({ tags }: TagsPageProps): JSX.Element {
           </div>
         ))}
       </Card>
-    </section>
-  );
-}
-
-export interface TagPayloadsPageProps {
-  tagPayloads: TagPayload[];
-}
-
-export function TagPayloadsPage({ tagPayloads }: TagPayloadsPageProps): JSX.Element {
-  return (
-    <section className="space-y-4">
-      <SectionHeader
-        title="Tag payload templates"
-        description="Review payload structures that are rendered and sent to shelf labels."
-        primaryAction="Create template"
-      />
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {tagPayloads.map((tagPayload) => (
-          <Card key={tagPayload.id} className="space-y-2 rounded-xl">
-            <p className="font-medium">{tagPayload.id}</p>
-            <p className="text-sm text-muted-foreground">{JSON.stringify(tagPayload.payloadJson)}</p>
-          </Card>
-        ))}
-      </div>
     </section>
   );
 }

@@ -1,4 +1,4 @@
-"""Tag-payload read routes for debugging and compatibility."""
+"""Tag-payload read routes used by smoke tests and backend inspection."""
 
 from __future__ import annotations
 

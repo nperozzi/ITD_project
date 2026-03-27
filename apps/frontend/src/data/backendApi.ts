@@ -5,7 +5,6 @@ import type {
   ShelfLocation,
   Store,
   Tag,
-  TagPayload,
 } from '../types';
 
 // When VITE_BACKEND_URL is set, requests go directly to backend (for example http://localhost:5000).
@@ -54,10 +53,6 @@ export function fetchProducts(): Promise<Product[]> {
 
 export function fetchTags(): Promise<Tag[]> {
   return fetchJson<Tag[]>('/api/tags');
-}
-
-export function fetchTagPayloads(): Promise<TagPayload[]> {
-  return fetchJson<TagPayload[]>('/api/tag-payloads');
 }
 
 export function fetchPromotions(): Promise<Promotion[]> {

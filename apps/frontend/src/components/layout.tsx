@@ -20,7 +20,6 @@ const navItems: NavItem[] = [
   { key: 'shelf-locations', label: 'Shelf Locations' },
   { key: 'products', label: 'Products' },
   { key: 'tags', label: 'Tags' },
-  { key: 'tag-payloads', label: 'Tag Payloads' },
   { key: 'promotions', label: 'Promotions' },
 ];
 

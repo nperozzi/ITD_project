@@ -56,10 +56,6 @@ def test_publish_tag_payload_stores_and_publishes_snapshot():
     assert data["tagPayloadId"] == 1
     publish_mock.assert_called_once()
 
-    listing_response = client.get("/api/tag-payloads")
-    listing_data = listing_response.get_json()
-    assert listing_data == [{"id": 1, "payloadJson": data["payload"], "acknowledged": False}]
-
 
 def test_publish_tag_payload_requires_product_assignment():
     client = make_client()

@@ -24,7 +24,6 @@ class TagPayloadError(ValueError):
     """Raised when a tag payload cannot be generated or published."""
 
 
-
 def list_all_tagpayloads(db: Session) -> list[dict[str, Any]]:
     return [_convert_tagpayload_to_dict(tagpayload) for tagpayload in get_all_tagpayloads(db)]
 
@@ -132,6 +131,7 @@ def _convert_datetime_to_str(value: datetime) -> str:
     if value.tzinfo is not None:
         value = value.astimezone(UTC).replace(tzinfo=None)
     return value.isoformat() + "Z"
+
 
 def _convert_tagpayload_to_dict(tagpayload: TagPayload) -> dict[str, Any]:
     return {

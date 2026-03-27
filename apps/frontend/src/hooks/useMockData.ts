@@ -5,7 +5,6 @@ import {
 	fetchProducts,
 	fetchShelfLocations,
 	fetchStores,
-	fetchTagPayloads,
 	fetchTags,
 } from '../data/backendApi';
 
@@ -27,10 +26,6 @@ export function useProducts() {
 
 export function useTags() {
 	return useSWR('tags', fetchTags);
-}
-
-export function useTagPayloads() {
-	return useSWR('tag-payloads', fetchTagPayloads);
 }
 
 export function usePromotions() {

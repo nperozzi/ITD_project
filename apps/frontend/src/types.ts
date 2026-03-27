@@ -9,7 +9,6 @@ export type NavigationKey =
   | 'shelf-locations'
   | 'products'
   | 'tags'
-  | 'tag-payloads'
   | 'promotions';
 
 export interface Store {
@@ -45,11 +44,6 @@ export interface Tag {
   status: TagStatus;
   productId: EntityId | null;
   shelfLocationId: EntityId | null;
-}
-
-export interface TagPayload {
-  id: EntityId;
-  payloadJson: Record<string, unknown>;
 }
 
 export interface Promotion {

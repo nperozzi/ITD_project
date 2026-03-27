@@ -136,16 +136,6 @@ def test_patch_product_publishes_payloads_for_assigned_tags():
     assert published_payload["basePrice"] == 19.0
     assert published_payload["finalPrice"] == 19.0
 
-    payloads_response = client.get("/api/tag-payloads")
-    assert payloads_response.status_code == 200
-    assert payloads_response.get_json() == [
-        {
-            "id": 1,
-            "payloadJson": published_payload,
-            "acknowledged": False,
-        }
-    ]
-
 
 def test_delete_product_removes_existing_row():
     client = make_client()

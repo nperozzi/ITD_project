@@ -5,7 +5,6 @@ import type {
   ShelfLocation,
   Store,
   Tag,
-  TagPayload,
 } from '../types';
 
 const stores: Store[] = [
@@ -88,17 +87,6 @@ const tags: Tag[] = [
   },
 ];
 
-const tagPayloads: TagPayload[] = [
-  {
-    id: 1,
-    payloadJson: { tagId: 1, title: 'Arabica Coffee Beans', price: 22.9 },
-  },
-  {
-    id: 2,
-    payloadJson: { tagId: 2, title: 'Organic Oat Milk', price: 4.5 },
-  },
-];
-
 const promotions: Promotion[] = [
   {
     id: 1,
@@ -147,11 +135,6 @@ export async function fetchProducts(): Promise<Product[]> {
 export async function fetchTags(): Promise<Tag[]> {
   await wait();
   return tags;
-}
-
-export async function fetchTagPayloads(): Promise<TagPayload[]> {
-  await wait();
-  return tagPayloads;
 }
 
 export async function fetchPromotions(): Promise<Promotion[]> {
