@@ -132,8 +132,8 @@ def test_patch_product_publishes_payloads_for_assigned_tags():
     publish_mock.assert_called_once()
     assert publish_mock.call_args.args[0] == tag_id
     published_payload = publish_mock.call_args.args[1]
-    assert published_payload["productId"] == product_id
-    assert published_payload["basePrice"] == 19.0
+    assert published_payload["tagId"] == tag_id
+    assert published_payload["title"] == "Coffee Beans"
     assert published_payload["finalPrice"] == 19.0
 
 

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime, UTC
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -17,7 +16,6 @@ from db.crud.tagpayload import (
 from db.models.promotion import Promotion
 from db.models.tagpayload import TagPayload
 from mqtt_client import publish_tag_payload
-from services.tag_service import tag_to_dictionary
 
 
 class TagPayloadError(ValueError):
@@ -84,30 +82,11 @@ def build_payload_for_tag(db: Session, tag_id: int) -> dict[str, Any]:
     active_promotion = _get_active_promotion_for_product(db, product.id)
     base_price = float(product.price)
     final_price = _apply_percentage_discount(base_price, active_promotion.discount_percentage) if active_promotion else base_price
-    tag_summary = tag_to_dictionary(tag)
 
     return {
         "tagId": tag.id,
-        "productId": product.id,
         "title": product.name,
-        "sku": product.sku,
-        "basePrice": round(base_price, 2),
         "finalPrice": round(final_price, 2),
-        "currency": "EUR",
-        "promotion": (
-            {
-                "type": "percentage",
-                "value": active_promotion.discount_percentage,
-                "startAt": _convert_datetime_to_str(active_promotion.start_at),
-                "endAt": _convert_datetime_to_str(active_promotion.end_at),
-            }
-            if active_promotion
-            else None
-        ),
-        "tagStatus": tag_summary["status"],
-        "batteryPct": tag_summary["batteryPct"],
-        "shelfLocationId": tag.shelf_location_id,
-        "generatedAt": _convert_datetime_to_str(datetime.now(UTC)),
     }
 
 
@@ -125,14 +104,6 @@ def _get_active_promotion_for_product(db: Session, product_id: int) -> Promotion
 
 def _apply_percentage_discount(price: float, discount_percentage: int) -> float:
     return price * (1 - (discount_percentage / 100))
-
-
-def _convert_datetime_to_str(value: datetime) -> str:
-    if value.tzinfo is not None:
-        value = value.astimezone(UTC).replace(tzinfo=None)
-    return value.isoformat() + "Z"
-
-
 def _convert_tagpayload_to_dict(tagpayload: TagPayload) -> dict[str, Any]:
     return {
         "id": tagpayload.id,

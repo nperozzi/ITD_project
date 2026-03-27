@@ -38,8 +38,5 @@ def test_build_payload_for_tag_applies_active_percentage_promotion():
 
     assert payload["tagId"] == tag.id
     assert payload["title"] == "Coffee"
-    assert payload["basePrice"] == 20.0
     assert payload["finalPrice"] == 15.0
-    assert payload["promotion"] is not None
-    assert payload["promotion"]["type"] == "percentage"
-    assert payload["promotion"]["value"] == 25
+    assert payload == {"tagId": tag.id, "title": "Coffee", "finalPrice": 15.0}
