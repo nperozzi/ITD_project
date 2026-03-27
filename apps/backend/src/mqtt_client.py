@@ -47,13 +47,6 @@ def set_db(db_instance):
     global db
     db = db_instance
 
-def publish_price(price):
-    # Publish price update to backend->gateway topic namespace.
-    payload = json.dumps({"price": price})
-    topic = f"b-g/tag1/price"
-    client.publish(topic, payload, retain=True)
-
-
 def publish_tag_payload(tag_id: int, payload_data: dict):
     # Publish a generated tag payload snapshot to the tag topic namespace.
     payload = json.dumps(payload_data)

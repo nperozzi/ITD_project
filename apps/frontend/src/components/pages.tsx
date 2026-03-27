@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Modal } from './ui/modal';
-import { setPrice } from '../data/backendApi';
+import { updateProductPrice } from '../data/backendApi';
 import { useLiveBattery } from '../hooks/useLiveBattery';
 import type {
   Gateway,
@@ -100,6 +100,7 @@ export function DashboardPage({
 }: DashboardPageProps): JSX.Element {
   const { battery, isConnected } = useLiveBattery();
   const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [priceValue, setPriceValue] = useState('');
   const [isSubmittingPrice, setIsSubmittingPrice] = useState(false);
   const [priceFeedback, setPriceFeedback] = useState<string | null>(null);
@@ -114,18 +115,30 @@ export function DashboardPage({
   const shelfLocationById = new Map(shelfLocations.map((shelfLocation) => [shelfLocation.id, shelfLocation]));
 
   const submitPrice = async (): Promise<void> => {
+    const productId = Number(selectedProductId);
+    if (!Number.isInteger(productId) || productId <= 0) {
+      setPriceFeedback('Please select a product first.');
+      return;
+    }
+
     // Basic guard to avoid unnecessary network calls with empty values.
     if (!priceValue.trim()) {
       setPriceFeedback('Please enter a price value.');
       return;
     }
 
+    const parsedPrice = Number(priceValue.trim());
+    if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+      setPriceFeedback('Please enter a valid non-negative price.');
+      return;
+    }
+
     setIsSubmittingPrice(true);
     setPriceFeedback(null);
     try {
-      // Delegates to backend API client (`POST /set_price`).
-      await setPrice(priceValue.trim());
-      setPriceFeedback('Price update sent to the backend and gateway.');
+      // Uses the real product update API, which also triggers payload publishing for assigned tags.
+      const updatedProduct = await updateProductPrice(productId, parsedPrice);
+      setPriceFeedback(`Updated ${updatedProduct.name} to ${formatMoney(updatedProduct.price)}.`);
       setPriceValue('');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to send price update.';
@@ -235,7 +248,7 @@ export function DashboardPage({
           <Button size="sm" onClick={() => setIsPriceModalOpen(true)}>
             Set Price
           </Button>
-          <p className="text-xs text-muted-foreground">Sends `POST /set_price` like the backend demo page.</p>
+          <p className="text-xs text-muted-foreground">Updates a product through `PATCH /api/products/{productId}`.</p>
         </div>
       </Card>
 
@@ -249,6 +262,22 @@ export function DashboardPage({
         }}
       >
         <div className="space-y-3">
+          <label className="block text-sm text-muted-foreground" htmlFor="price-product-select">
+            Product
+          </label>
+          <select
+            id="price-product-select"
+            value={selectedProductId}
+            onChange={(event) => setSelectedProductId(event.target.value)}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Select a product</option>
+            {products.map((product) => (
+              <option key={product.id} value={product.id}>
+                {product.name} ({product.sku})
+              </option>
+            ))}
+          </select>
           <label className="block text-sm text-muted-foreground" htmlFor="price-input">
             Price
           </label>
@@ -267,7 +296,7 @@ export function DashboardPage({
             <Button variant="outline" size="sm" onClick={() => setIsPriceModalOpen(false)}>
               Cancel
             </Button>
-            <Button size="sm" onClick={() => void submitPrice()} disabled={isSubmittingPrice}>
+            <Button size="sm" onClick={() => void submitPrice()} disabled={isSubmittingPrice || products.length === 0}>
               {isSubmittingPrice ? 'Sending...' : 'Send Price'}
             </Button>
           </div>

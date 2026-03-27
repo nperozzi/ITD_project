@@ -18,10 +18,6 @@ export default defineConfig(({ mode }) => {
               target: proxyTarget,
               changeOrigin: true,
             },
-            '/set_price': {
-              target: proxyTarget,
-              changeOrigin: true,
-            },
             '/battery': {
               target: proxyTarget,
               changeOrigin: true,

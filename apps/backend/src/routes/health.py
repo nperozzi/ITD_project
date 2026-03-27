@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from flask import current_app, jsonify, request
 
-from db.crud.product import update_product
 from db.crud.tag import get_tag
-from mqtt_client import publish_price
 
 from . import api
 
@@ -14,19 +12,6 @@ from . import api
 @api.route("/")
 def index():
     return jsonify({"service": "backend", "status": "ok"})
-
-
-@api.route("/set_price", methods=["POST"])
-def set_price():
-    price = request.form["price"]
-
-    db = current_app.config.get("db")
-    if db:
-        with db.SessionLocal() as session:
-            update_product(session, 1, price=float(price))
-
-    publish_price(price)
-    return "OK"
 
 
 @api.route("/battery")
