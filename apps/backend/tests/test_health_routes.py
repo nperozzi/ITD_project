@@ -26,18 +26,13 @@ def make_client():
     return app.test_client()
 
 
-def test_get_battery_reads_last_stored_value_for_default_tag():
+def test_get_battery_requires_tag_id_query_param():
     client = make_client()
-
-    with client.application.app_context():
-        db = client.application.config["db"]
-        with db.SessionLocal() as session:
-            create_tag(session, status=Status.ONLINE, battery_pct=73)
 
     response = client.get("/battery")
 
-    assert response.status_code == 200
-    assert response.get_json() == {"battery": 73}
+    assert response.status_code == 400
+    assert response.get_json() == {"error": "Query parameter 'tagId' must be a positive integer."}
 
 
 def test_get_battery_reads_specific_tag_from_query_param():

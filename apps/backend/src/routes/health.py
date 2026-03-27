@@ -16,7 +16,7 @@ def index():
 
 @api.route("/battery")
 def battery():
-    tag_id = request.args.get("tagId", default=1, type=int)
+    tag_id = request.args.get("tagId", type=int)
     if tag_id is None or tag_id <= 0:
         return jsonify({"error": "Query parameter 'tagId' must be a positive integer."}), 400
 
