@@ -3,7 +3,6 @@ import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Modal } from './ui/modal';
 import { updateProductPrice } from '../data/backendApi';
-import { useLiveBattery } from '../hooks/useLiveBattery';
 import type {
   Gateway,
   Product,
@@ -85,6 +84,8 @@ export interface DashboardPageProps {
   products: Product[];
   tags: Tag[];
   promotions: Promotion[];
+  isRealtimeConnected: boolean;
+  lastBatteryUpdate: { tagId: number; batteryPct: number } | null;
 }
 
 export function DashboardPage({
@@ -94,8 +95,9 @@ export function DashboardPage({
   products,
   tags,
   promotions,
+  isRealtimeConnected,
+  lastBatteryUpdate,
 }: DashboardPageProps): JSX.Element {
-  const { battery, isConnected } = useLiveBattery();
   const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [priceValue, setPriceValue] = useState('');
@@ -217,14 +219,15 @@ export function DashboardPage({
       <Card className="space-y-4 rounded-xl">
         <div className="flex items-center justify-between">
           <h4 className="font-semibold">Live device control</h4>
-          <span className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${isConnected ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-border bg-background text-muted-foreground'}`}>
-            {isConnected ? 'Socket connected' : 'Socket disconnected'}
+          <span className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${isRealtimeConnected ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-border bg-background text-muted-foreground'}`}>
+            {isRealtimeConnected ? 'Socket connected' : 'Socket disconnected'}
           </span>
         </div>
         <div className="rounded-lg border border-border bg-background p-4">
-          <p className="text-sm text-muted-foreground">Latest battery report</p>
-          {/* Value comes from backend `/battery` + Socket.IO `battery_update` events. */}
-          <p className="text-2xl font-semibold">{battery ?? 'No data'}{typeof battery === 'number' ? '%' : ''}</p>
+          <p className="text-sm text-muted-foreground">Latest MQTT battery update</p>
+          <p className="text-2xl font-semibold">
+            {lastBatteryUpdate ? `Tag ${lastBatteryUpdate.tagId}: ${lastBatteryUpdate.batteryPct}%` : 'No live updates yet'}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button size="sm" onClick={() => setIsPriceModalOpen(true)}>

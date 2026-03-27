@@ -59,11 +59,6 @@ export function fetchPromotions(): Promise<Promotion[]> {
   return fetchJson<Promotion[]>('/api/promotions');
 }
 
-export function fetchBattery(): Promise<{ battery: number | null }> {
-  // Battery endpoint used by the live dashboard card.
-  return fetchJson<{ battery: number | null }>('/battery');
-}
-
 export function updateProductPrice(productId: number, price: number): Promise<Product> {
   // Product price updates go through the real REST API and trigger tag payload publishing in backend.
   return patchJson<Product>(`/api/products/${productId}`, { price });
