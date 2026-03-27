@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -104,6 +105,8 @@ def _get_active_promotion_for_product(db: Session, product_id: int) -> Promotion
 
 def _apply_percentage_discount(price: float, discount_percentage: int) -> float:
     return price * (1 - (discount_percentage / 100))
+
+
 def _convert_tagpayload_to_dict(tagpayload: TagPayload) -> dict[str, Any]:
     return {
         "id": tagpayload.id,
