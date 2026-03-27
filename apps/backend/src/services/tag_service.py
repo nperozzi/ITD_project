@@ -4,8 +4,10 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from db.crud.product import get_product
 from db.crud.tag import create_tag, delete_tag, get_all_tags, get_tag, update_tag
 from db.models.tag import Status, Tag
+from services.tag_payload_service import publish_payload_for_tag
 
 
 class TagValidationError(ValueError):
@@ -40,6 +42,7 @@ def get_tag_details(db: Session, tag_id: int) -> dict[str, Any] | None:
 def create_tag_from_payload(db: Session, payload: dict[str, Any]) -> dict[str, Any]:
     tag_data = _validated_tag_fields(payload, partial=False)
     tag = create_tag(db=db, **tag_data)
+    _publish_tag_after_assignment(db, previous_product_id=None, tag=tag)
     return tag_to_dictionary(tag)
 
 
@@ -48,9 +51,15 @@ def update_tag_from_payload(db: Session, tag_id: int, payload: dict[str, Any]) -
     if not tag_data:
         raise TagValidationError("At least one updatable field is required.")
 
+    existing_tag = get_tag(db, tag_id)
+    if existing_tag is None:
+        return None
+    previous_product_id = existing_tag.product_id
+
     tag = update_tag(db, tag_id, **tag_data)
     if tag is None:
         return None
+    _publish_tag_after_assignment(db, previous_product_id=previous_product_id, tag=tag)
     return tag_to_dictionary(tag)
 
 
@@ -123,3 +132,13 @@ def _convert_status_obj_to_str(status: Status, battery_pct: int) -> str:
     if battery_pct < LOW_BATTERY_THRESHOLD:
         return "low-battery"
     return "active"
+
+
+def _publish_tag_after_assignment(db: Session, *, previous_product_id: int | None, tag: Tag) -> None:
+    if tag.product_id is None:
+        return
+    if tag.product_id == previous_product_id:
+        return
+    if get_product(db, tag.product_id) is None:
+        return
+    publish_payload_for_tag(db, tag.id)

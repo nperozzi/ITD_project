@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from unittest.mock import patch
+
 from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -89,6 +91,67 @@ def test_patch_tag_updates_existing_row():
         "productId": None,
         "shelfLocationId": None,
     }
+
+
+def test_create_tag_with_product_assignment_publishes_payload():
+    client = make_client()
+    product_response = client.post(
+        "/api/products",
+        json={"sku": "SKU-100", "name": "Coffee", "attributesJson": {}, "price": 10.0},
+    )
+    product_id = product_response.get_json()["id"]
+
+    with patch("services.tag_service.publish_payload_for_tag") as publish_mock:
+        response = client.post(
+            "/api/tags",
+            json={"status": "active", "batteryPct": 90, "productId": product_id, "shelfLocationId": None},
+        )
+
+    assert response.status_code == 201
+    publish_mock.assert_called_once()
+    assert publish_mock.call_args.args[1] == response.get_json()["id"]
+
+
+def test_patch_tag_product_assignment_publishes_payload():
+    client = make_client()
+    product_response = client.post(
+        "/api/products",
+        json={"sku": "SKU-101", "name": "Tea", "attributesJson": {}, "price": 7.5},
+    )
+    product_id = product_response.get_json()["id"]
+    tag_response = client.post(
+        "/api/tags",
+        json={"status": "active", "batteryPct": 90, "productId": None, "shelfLocationId": None},
+    )
+    tag_id = tag_response.get_json()["id"]
+
+    with patch("services.tag_service.publish_payload_for_tag") as publish_mock:
+        response = client.patch(
+            f"/api/tags/{tag_id}",
+            json={"productId": product_id},
+        )
+
+    assert response.status_code == 200
+    publish_mock.assert_called_once()
+    assert publish_mock.call_args.args[1] == tag_id
+
+
+def test_patch_tag_without_assignment_change_does_not_publish_payload():
+    client = make_client()
+    tag_response = client.post(
+        "/api/tags",
+        json={"status": "active", "batteryPct": 90, "productId": None, "shelfLocationId": None},
+    )
+    tag_id = tag_response.get_json()["id"]
+
+    with patch("services.tag_service.publish_payload_for_tag") as publish_mock:
+        response = client.patch(
+            f"/api/tags/{tag_id}",
+            json={"batteryPct": 10},
+        )
+
+    assert response.status_code == 200
+    publish_mock.assert_not_called()
 
 
 def test_delete_tag_removes_existing_row():
