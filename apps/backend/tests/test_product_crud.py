@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.base import Base
-from db.crud.crud_product import (
+from db.crud.product import (
     create_product,
     delete_product,
     get_all_products,

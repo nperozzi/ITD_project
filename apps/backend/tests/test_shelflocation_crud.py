@@ -2,14 +2,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.base import Base
-from db.crud.crud_shelflocation import (
+from db.crud.shelflocation import (
     create_shelflocation,
     delete_shelflocation,
     get_all_shelflocations,
     get_shelflocation,
     update_shelflocation,
 )
-from db.crud.crud_store import create_store
+from db.crud.store import create_store
 from db.models.gateway import Gateway  # noqa: F401
 from db.models.shelfLocation import ShelfLocation  # noqa: F401
 from db.models.store import Store  # noqa: F401

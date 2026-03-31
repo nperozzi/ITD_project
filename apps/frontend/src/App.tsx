@@ -7,7 +7,6 @@ import {
   ShelfLocationsPage,
   ProductsPage,
   TagsPage,
-  TagPayloadsPage,
   PromotionsPage,
 } from './components/pages';
 import {
@@ -16,9 +15,9 @@ import {
   usePromotions,
   useShelfLocations,
   useStores,
-  useTagPayloads,
   useTags,
 } from './hooks/useBackendData';
+import { useLiveTags } from './hooks/useLiveTags';
 import type { NavigationKey } from './types';
 
 function LoadingState(): JSX.Element {
@@ -48,8 +47,8 @@ export default function App(): JSX.Element {
   const { data: shelfLocations, error: shelfLocationsError } = useShelfLocations();
   const { data: products, error: productsError } = useProducts();
   const { data: tags, error: tagsError } = useTags();
-  const { data: tagPayloads, error: tagPayloadsError } = useTagPayloads();
   const { data: promotions, error: promotionsError } = usePromotions();
+  const { tags: liveTags, isConnected: isRealtimeConnected, lastBatteryUpdate } = useLiveTags(tags);
 
   const content = useMemo(() => {
     // Show the first request error so the user has a clear actionable message.
@@ -59,7 +58,6 @@ export default function App(): JSX.Element {
       shelfLocationsError ??
       productsError ??
       tagsError ??
-      tagPayloadsError ??
       promotionsError;
 
     if (firstError) {
@@ -67,7 +65,7 @@ export default function App(): JSX.Element {
     }
 
     // Keep a single loading state until all required datasets are available.
-    if (!stores || !gateways || !shelfLocations || !products || !tags || !tagPayloads || !promotions) {
+    if (!stores || !gateways || !shelfLocations || !products || !tags || !promotions) {
       return <LoadingState />;
     }
 
@@ -79,9 +77,10 @@ export default function App(): JSX.Element {
             gateways={gateways}
             shelfLocations={shelfLocations}
             products={products}
-            tags={tags}
-            tagPayloads={tagPayloads}
+            tags={liveTags}
             promotions={promotions}
+            isRealtimeConnected={isRealtimeConnected}
+            lastBatteryUpdate={lastBatteryUpdate}
           />
         );
       case 'stores':
@@ -93,9 +92,7 @@ export default function App(): JSX.Element {
       case 'products':
         return <ProductsPage products={products} />;
       case 'tags':
-        return <TagsPage tags={tags} />;
-      case 'tag-payloads':
-        return <TagPayloadsPage tagPayloads={tagPayloads} />;
+        return <TagsPage tags={liveTags} />;
       case 'promotions':
         return <PromotionsPage promotions={promotions} />;
       default:
@@ -108,14 +105,15 @@ export default function App(): JSX.Element {
     shelfLocations,
     products,
     tags,
-    tagPayloads,
+    liveTags,
     promotions,
+    isRealtimeConnected,
+    lastBatteryUpdate,
     storesError,
     gatewaysError,
     shelfLocationsError,
     productsError,
     tagsError,
-    tagPayloadsError,
     promotionsError,
   ]);
 

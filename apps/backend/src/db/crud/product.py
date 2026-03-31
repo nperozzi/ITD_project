@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from db.models.product import Product
+from db.models.tag import Tag
 
 
 def create_product(
@@ -34,6 +35,11 @@ def get_product(db: Session, product_id: int) -> Product | None:
 def get_all_products(db: Session):
     products = select(Product)
     return db.scalars(products).all()
+
+
+def get_tags_for_product(db: Session, product_id: int) -> list[Tag]:
+    stmt = select(Tag).where(Tag.product_id == product_id)
+    return db.scalars(stmt).all()
 
 
 def update_product(db: Session, product_id: int, **kwargs: Any) -> Product | None:

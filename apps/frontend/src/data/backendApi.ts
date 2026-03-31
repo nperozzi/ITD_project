@@ -5,7 +5,6 @@ import type {
   ShelfLocation,
   Store,
   Tag,
-  TagPayload,
 } from '../types';
 
 // When VITE_BACKEND_URL is set, requests go directly to backend (for example http://localhost:5000).
@@ -21,19 +20,19 @@ async function fetchJson<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 
-// Shared form POST helper for endpoints that expect x-www-form-urlencoded payloads.
-async function postForm(path: string, payload: Record<string, string>): Promise<void> {
-  const body = new URLSearchParams(payload);
+// Shared JSON PATCH helper used by update endpoints.
+async function patchJson<T>(path: string, payload: Record<string, unknown>): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
     },
-    body: body.toString(),
+    body: JSON.stringify(payload),
   });
   if (!response.ok) {
     throw new Error(`Request failed for ${path}: ${response.status}`);
   }
+  return (await response.json()) as T;
 }
 
 export function fetchStores(): Promise<Store[]> {
@@ -56,22 +55,13 @@ export function fetchTags(): Promise<Tag[]> {
   return fetchJson<Tag[]>('/api/tags');
 }
 
-export function fetchTagPayloads(): Promise<TagPayload[]> {
-  return fetchJson<TagPayload[]>('/api/tag-payloads');
-}
-
 export function fetchPromotions(): Promise<Promotion[]> {
   return fetchJson<Promotion[]>('/api/promotions');
 }
 
-export function fetchBattery(): Promise<{ battery: number | null }> {
-  // Battery endpoint used by the live dashboard card.
-  return fetchJson<{ battery: number | null }>('/battery');
-}
-
-export function setPrice(price: string): Promise<void> {
-  // Price updates are sent to backend, then forwarded through MQTT by backend/gateway.
-  return postForm('/set_price', { price });
+export function updateProductPrice(productId: number, price: number): Promise<Product> {
+  // Product price updates go through the real REST API and trigger tag payload publishing in backend.
+  return patchJson<Product>(`/api/products/${productId}`, { price });
 }
 
 export function getApiBaseUrl(): string {

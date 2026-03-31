@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Modal } from './ui/modal';
-import { setPrice } from '../data/backendApi';
-import { useLiveBattery } from '../hooks/useLiveBattery';
+import { updateProductPrice } from '../data/backendApi';
 import type {
   Gateway,
   Product,
@@ -11,7 +10,6 @@ import type {
   ShelfLocation,
   Store,
   Tag,
-  TagPayload,
 } from '../types';
 
 function formatMoney(value: number): string {
@@ -85,8 +83,9 @@ export interface DashboardPageProps {
   shelfLocations: ShelfLocation[];
   products: Product[];
   tags: Tag[];
-  tagPayloads: TagPayload[];
   promotions: Promotion[];
+  isRealtimeConnected: boolean;
+  lastBatteryUpdate: { tagId: number; batteryPct: number } | null;
 }
 
 export function DashboardPage({
@@ -95,11 +94,12 @@ export function DashboardPage({
   shelfLocations,
   products,
   tags,
-  tagPayloads,
   promotions,
+  isRealtimeConnected,
+  lastBatteryUpdate,
 }: DashboardPageProps): JSX.Element {
-  const { battery, isConnected } = useLiveBattery();
   const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [priceValue, setPriceValue] = useState('');
   const [isSubmittingPrice, setIsSubmittingPrice] = useState(false);
   const [priceFeedback, setPriceFeedback] = useState<string | null>(null);
@@ -114,18 +114,30 @@ export function DashboardPage({
   const shelfLocationById = new Map(shelfLocations.map((shelfLocation) => [shelfLocation.id, shelfLocation]));
 
   const submitPrice = async (): Promise<void> => {
+    const productId = Number(selectedProductId);
+    if (!Number.isInteger(productId) || productId <= 0) {
+      setPriceFeedback('Please select a product first.');
+      return;
+    }
+
     // Basic guard to avoid unnecessary network calls with empty values.
     if (!priceValue.trim()) {
       setPriceFeedback('Please enter a price value.');
       return;
     }
 
+    const parsedPrice = Number(priceValue.trim());
+    if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+      setPriceFeedback('Please enter a valid non-negative price.');
+      return;
+    }
+
     setIsSubmittingPrice(true);
     setPriceFeedback(null);
     try {
-      // Delegates to backend API client (`POST /set_price`).
-      await setPrice(priceValue.trim());
-      setPriceFeedback('Price update sent to the backend and gateway.');
+      // Uses the real product update API, which also triggers payload publishing for assigned tags.
+      const updatedProduct = await updateProductPrice(productId, parsedPrice);
+      setPriceFeedback(`Updated ${updatedProduct.name} to ${formatMoney(updatedProduct.price)}.`);
       setPriceValue('');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to send price update.';
@@ -184,12 +196,12 @@ export function DashboardPage({
           </div>
           <div className="space-y-3">
             {tags.map((tag) => {
-              const product = productById.get(tag.productId);
-              const shelfLocation = shelfLocationById.get(tag.shelfLocationId);
+              const product = tag.productId === null ? undefined : productById.get(tag.productId);
+              const shelfLocation = tag.shelfLocationId === null ? undefined : shelfLocationById.get(tag.shelfLocationId);
               return (
                 <div key={tag.id} className="rounded-lg border border-border bg-background px-3 py-2">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-medium">{product?.name ?? tag.productId}</p>
+                    <p className="font-medium">{product?.name ?? tag.productId ?? 'Unassigned product'}</p>
                     <span className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${statusPillClass(tag.status)}`}>
                       {tag.status}
                     </span>
@@ -204,38 +216,24 @@ export function DashboardPage({
         </Card>
       </div>
 
-      <Card className="space-y-3 rounded-xl">
-        <div className="flex items-center justify-between">
-          <h4 className="font-semibold">Payload readiness</h4>
-          <p className="text-sm text-muted-foreground">{tagPayloads.length} payload templates available</p>
-        </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {tagPayloads.map((payload) => (
-            <div key={payload.id} className="rounded-lg border border-border bg-background p-3">
-              <p className="font-medium">{payload.id}</p>
-              <p className="text-xs text-muted-foreground">{JSON.stringify(payload.payloadJson)}</p>
-            </div>
-          ))}
-        </div>
-      </Card>
-
       <Card className="space-y-4 rounded-xl">
         <div className="flex items-center justify-between">
           <h4 className="font-semibold">Live device control</h4>
-          <span className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${isConnected ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-border bg-background text-muted-foreground'}`}>
-            {isConnected ? 'Socket connected' : 'Socket disconnected'}
+          <span className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${isRealtimeConnected ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-border bg-background text-muted-foreground'}`}>
+            {isRealtimeConnected ? 'Socket connected' : 'Socket disconnected'}
           </span>
         </div>
         <div className="rounded-lg border border-border bg-background p-4">
-          <p className="text-sm text-muted-foreground">Latest battery report</p>
-          {/* Value comes from backend `/battery` + Socket.IO `battery_update` events. */}
-          <p className="text-2xl font-semibold">{battery ?? 'No data'}{typeof battery === 'number' ? '%' : ''}</p>
+          <p className="text-sm text-muted-foreground">Latest MQTT battery update</p>
+          <p className="text-2xl font-semibold">
+            {lastBatteryUpdate ? `Tag ${lastBatteryUpdate.tagId}: ${lastBatteryUpdate.batteryPct}%` : 'No live updates yet'}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button size="sm" onClick={() => setIsPriceModalOpen(true)}>
             Set Price
           </Button>
-          <p className="text-xs text-muted-foreground">Sends `POST /set_price` like the backend demo page.</p>
+          <p className="text-xs text-muted-foreground">Updates a product through `PATCH /api/products/{productId}`.</p>
         </div>
       </Card>
 
@@ -249,6 +247,22 @@ export function DashboardPage({
         }}
       >
         <div className="space-y-3">
+          <label className="block text-sm text-muted-foreground" htmlFor="price-product-select">
+            Product
+          </label>
+          <select
+            id="price-product-select"
+            value={selectedProductId}
+            onChange={(event) => setSelectedProductId(event.target.value)}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Select a product</option>
+            {products.map((product) => (
+              <option key={product.id} value={product.id}>
+                {product.name} ({product.sku})
+              </option>
+            ))}
+          </select>
           <label className="block text-sm text-muted-foreground" htmlFor="price-input">
             Price
           </label>
@@ -267,7 +281,7 @@ export function DashboardPage({
             <Button variant="outline" size="sm" onClick={() => setIsPriceModalOpen(false)}>
               Cancel
             </Button>
-            <Button size="sm" onClick={() => void submitPrice()} disabled={isSubmittingPrice}>
+            <Button size="sm" onClick={() => void submitPrice()} disabled={isSubmittingPrice || products.length === 0}>
               {isSubmittingPrice ? 'Sending...' : 'Send Price'}
             </Button>
           </div>
@@ -434,30 +448,6 @@ export function TagsPage({ tags }: TagsPageProps): JSX.Element {
           </div>
         ))}
       </Card>
-    </section>
-  );
-}
-
-export interface TagPayloadsPageProps {
-  tagPayloads: TagPayload[];
-}
-
-export function TagPayloadsPage({ tagPayloads }: TagPayloadsPageProps): JSX.Element {
-  return (
-    <section className="space-y-4">
-      <SectionHeader
-        title="Tag payload templates"
-        description="Review payload structures that are rendered and sent to shelf labels."
-        primaryAction="Create template"
-      />
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {tagPayloads.map((tagPayload) => (
-          <Card key={tagPayload.id} className="space-y-2 rounded-xl">
-            <p className="font-medium">{tagPayload.id}</p>
-            <p className="text-sm text-muted-foreground">{JSON.stringify(tagPayload.payloadJson)}</p>
-          </Card>
-        ))}
-      </div>
     </section>
   );
 }

@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 from db.base import Base
 from db.models.tag import Status
-from db.crud.crud_tag import (
+from db.crud.tag import (
     create_tag,
     get_tag,
     get_all_tags,
