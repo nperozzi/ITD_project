@@ -37,6 +37,8 @@ services:
     volumes:
       # Mount source for faster local iteration during development.
       - ./apps/backend/src:/src
+      # Mount tests so pytest can run inside the backend container.
+      - ./apps/backend/tests:/tests
     depends_on:
       mosquitto:
         condition: service_started

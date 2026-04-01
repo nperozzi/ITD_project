@@ -14,7 +14,7 @@ from db.crud.tagpayload import get_latest_unacknowledged_tagpayload_for_tag, upd
 
 BROKER = "mosquitto"
 PORT = 1883
-ACK_TOPIC_PATTERN = re.compile(r"^g-b/tag(?P<tag_id>\d+)/ack$")
+ACK_TOPIC_PATTERN = re.compile(r"^b-g/tag(?P<tag_id>\d+)/ack$")
 ADVERTISEMENT_TOPIC_PATTERN = re.compile(r"^b-g/tag(?P<tag_id>\d+)/advertisement$")
 
 db = None
@@ -59,7 +59,7 @@ def on_connect(client, userdata, flags, rc, properties=None):
     
     # Listen for advertisement payloads coming back from gateway/tag.
     client.subscribe("b-g/+/advertisement")
-    client.subscribe("g-b/+/ack")
+    client.subscribe("b-g/+/ack")
 
 def on_message(client, userdata, message):
     # Called whenever a subscribed MQTT message arrives.

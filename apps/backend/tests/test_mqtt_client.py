@@ -39,7 +39,7 @@ def test_ack_message_marks_latest_payload_as_acknowledged():
         stored_payload = create_tagpayload(session, tag_id=tag.id, payload_json={"price": 10.0})
 
     message = SimpleNamespace(
-        topic=f"g-b/tag{tag.id}/ack",
+        topic=f"b-g/tag{tag.id}/ack",
         payload=json.dumps({"tagId": tag.id, "ack": True}).encode(),
     )
 

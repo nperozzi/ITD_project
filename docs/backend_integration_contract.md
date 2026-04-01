@@ -280,7 +280,7 @@ Current backend behavior:
 - It stores the incoming battery value for that specific tag.
 - It emits Socket.IO `battery_update` with `tagId`, `batteryPct`, and normalized tag `status`.
 
-#### `g-b/tag{tagId}/ack`
+#### `b-g/tag{tagId}/ack`
 Expected incoming payload:
 ```json
 {
@@ -301,7 +301,7 @@ Frontend expectations:
 Gateway or broker-side expectations:
 
 - Consume backend payload snapshots from `b-g/tag{tagId}/payload`.
-- Publish acknowledgements to `g-b/tag{tagId}/ack`.
+- Publish acknowledgements to `b-g/tag{tagId}/ack`.
 - Publish advertisement messages to `b-g/tag{tagId}/advertisement`.
 
 ## Known Implementation Notes
