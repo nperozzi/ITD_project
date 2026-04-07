@@ -48,6 +48,8 @@ display(GxEPD2_213_B74(CS, DC, RST, BUSY));
 void displayPayload(const String &text) {
   display.setFullWindow();
   display.firstPage();
+  display.setRotation(1); //Sets orientation for the display; essentially what is "up", "down", "left" and "right".
+  display.setTextSize(2); //Size of rendered text on e-paper display.
 
   do {
     display.fillScreen(GxEPD_WHITE);
