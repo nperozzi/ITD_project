@@ -1,8 +1,10 @@
 #include <Arduino.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
-#include <BLEUtils.h>
+#include <GxEPD2_BW.h>
+#include <SPI.h>
 
+/* -------------------- BLE -------------------- */
 #define DEVICE_NAME "TG_01"
 
 /* UUID strings */
@@ -28,6 +30,41 @@ static BLECharacteristic *acknowledgeCharacteristic = nullptr;
 /* Connection state */
 static bool clientConnected = false;
 
+/* -------------------- E-PAPER -------------------- */
+/* Use the same pins from your working display test */
+#define MOSI 10
+#define SCK  11
+#define CS   3
+#define DC   2
+#define RST  1
+#define BUSY 4
+
+SPIClass spi = SPI;
+
+GxEPD2_BW<GxEPD2_213_B74, GxEPD2_213_B74::HEIGHT>
+display(GxEPD2_213_B74(CS, DC, RST, BUSY));
+
+/* -------------------- DISPLAY FUNCTION -------------------- */
+void displayPayload(const String &text) {
+  display.setFullWindow();
+  display.firstPage();
+
+  do {
+    display.fillScreen(GxEPD_WHITE);
+    display.setTextColor(GxEPD_BLACK);
+    display.setTextWrap(true);
+
+    display.setCursor(10, 20);
+    //display.println("Received payload:");
+
+    display.setCursor(10, 50);
+    display.println(text);
+  } while (display.nextPage());
+
+  Serial.println("Payload displayed on e-paper");
+}
+
+/* -------------------- BLE CALLBACKS -------------------- */
 class TagServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *server) override {
     clientConnected = true;
@@ -56,10 +93,8 @@ class PayloadCharacteristicCallbacks : public BLECharacteristicCallbacks {
     acknowledgeValue = "RECEIVED";
     acknowledgeCharacteristic->setValue(acknowledgeValue);
 
-    /* Future:
-       call display update function here, for example:
-       displayPayload(payloadValue);
-    */
+    /* Show payload on e-paper */
+    displayPayload(payloadValue);
 
     Serial.println("Payload written by client");
     Serial.print("Characteristic handle: ");
@@ -71,11 +106,11 @@ class PayloadCharacteristicCallbacks : public BLECharacteristicCallbacks {
     Serial.print("Acknowledge value updated to: ");
     Serial.println(acknowledgeValue);
 
+    
     if (clientConnected) {
       acknowledgeCharacteristic->notify();
       Serial.println("Acknowledge notification sent");
     }
-  
   }
 };
 
@@ -90,12 +125,21 @@ class AcknowledgeCharacteristicCallbacks : public BLECharacteristicCallbacks {
   }
 };
 
+/* -------------------- SETUP -------------------- */
 void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  Serial.println("Starting BLE tag");
+  Serial.println("Starting BLE tag with e-paper");
 
+  /* E-paper init */
+  spi.begin(SCK, -1, MOSI, CS);
+  display.epd2.selectSPI(spi, SPISettings(4000000, MSBFIRST, SPI_MODE0));
+  display.init(115200, true, 2, false);
+
+  displayPayload("WAITING...");
+
+  /* BLE init */
   BLEDevice::init(DEVICE_NAME);
 
   bleServer = BLEDevice::createServer();
@@ -126,6 +170,7 @@ void setup() {
   Serial.println("Advertising started");
 }
 
+/* -------------------- LOOP -------------------- */
 void loop() {
   delay(100);
 }
