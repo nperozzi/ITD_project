@@ -51,29 +51,12 @@ services:
     build: ./apps/gateway
     depends_on:
       - mosquitto
-    environment:
-      - BROKER=mosquitto
-      - PORT=1883
-      - INPUT_TOPIC=tags/packets
-      - CHECK_INTERVAL=2.0
-      - LOW_BATTERY_THRESHOLD=20
-      - OFFLINE_TIMEOUT_SECONDS=5.0
-      - KNOWN_TAGS=1,2,3
-
+  
   tag:
     build: ./apps/tag
     depends_on:
       - mosquitto
       
-    environment:
-      - BROKER=mosquitto
-      - PORT=1883
-      - TAG_ID=1
-      - BATTERY=87
-      - PRODUCT_ID=1001
-      - RELIABILITY=0.9
-      - PUBLISH_INTERVAL=2.0
-      - PACKET_TOPIC=tags/packets
 
 volumes:
   postgres_data:

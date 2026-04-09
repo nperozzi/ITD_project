@@ -1,36 +1,38 @@
+"""MQTT integration for backend service.
+
+Responsibilities:
+- subscribe to advertisement updates from tag path
+- store battery in DB and emit Socket.IO events
+"""
+
 import json
+import re
 import sys
 import paho.mqtt.client as mqtt
-from db.crud.crud_tag import update_tag
+from db.crud.tag import update_tag
+from db.crud.tagpayload import get_latest_unacknowledged_tagpayload_for_tag, update_tagpayload
 
-# MQTT broker connection settings.
 BROKER = "mosquitto"
 PORT = 1883
+ACK_TOPIC_PATTERN = re.compile(r"^g-b/tag(?P<tag_id>\d+)/ack$")
+ADVERTISEMENT_TOPIC_PATTERN = re.compile(r"^b-g/tag(?P<tag_id>\d+)/advertisement$")
 
 db = None
 app = None
 socketio = None
 
+# Single MQTT client instance reused by this module.
 client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
-
 
 def set_app(flask_app):
     # Save Flask app instance for later app-context operations.
     global app
     app = flask_app
 
-
 def set_socketio(sio):
     # Save Socket.IO instance used to push updates to browser clients.
     global socketio
     socketio = sio
-
-
-def set_db(db_instance):
-    # Save database/session provider used for persistence.
-    global db
-    db = db_instance
-
 
 def mqtt_client_connect():
     # Register callbacks and open broker connection.
@@ -39,122 +41,114 @@ def mqtt_client_connect():
     client.connect(BROKER, PORT, 60)
     client.loop_start()
 
+def set_db(db_instance):
+    # Save database adapter used for persistence.
+    global db
+    db = db_instance
 
-# Keep only if team still needs backend-originated price update.
-def publish_price(price):
-    # Publish price update to backend command topic.
-    payload = json.dumps({"price": price})
-    topic = "backend/commands/price"
+def publish_tag_payload(tag_id: int, payload_data: dict):
+    # Publish a generated tag payload snapshot to the tag topic namespace.
+    payload = json.dumps(payload_data)
+    topic = f"b-g/tag{tag_id}/payload"
     client.publish(topic, payload, retain=True)
 
-
-def on_connect(client, userdata, flags, reason_code, properties=None):
+def on_connect(client, userdata, flags, rc, properties=None):
     # Called by paho-mqtt after broker connection succeeds.
     print("Backend connected to broker")
     sys.stdout.flush()
-
-    # Subscribe to gateway event topics.
-    client.subscribe("gateway/events/tag/+/heard")
-    client.subscribe("gateway/events/tag/+/low_battery")
-    client.subscribe("gateway/events/tag/+/offline")
-
+    
+    # Listen for advertisement payloads coming back from gateway/tag.
+    client.subscribe("b-g/+/advertisement")
+    client.subscribe("g-b/+/ack")
 
 def on_message(client, userdata, message):
     # Called whenever a subscribed MQTT message arrives.
-    payload = message.payload.decode()
-    topic = message.topic
 
+    payload = message.payload.decode()
+
+    # Parse payload, persist battery level, and push to web clients.
     try:
         data = json.loads(payload)
-    except json.JSONDecodeError:
-        print(f"Backend ignored invalid JSON on topic {topic}")
-        sys.stdout.flush()
-        return
 
-    # Expected topic format:
-    # gateway / events / tag / <tag_id> / <event_type>
-    parts = topic.split("/")
-
-    if len(parts) != 5:
-        return
-
-    if parts[0] != "gateway" or parts[1] != "events" or parts[2] != "tag":
-        return
-
-    try:
-        tag_id = int(parts[3])
-    except ValueError:
-        return
-
-    event_type = parts[4]
-
-    if event_type == "heard":
-        battery = data.get("battery")
-        product_id = data.get("product_id")
-        status = data.get("status", "online")
-
-        # Persist latest known tag state using ORM CRUD.
-        if db:
-            updates = {}
-
-            if battery is not None:
-                updates["battery_pct"] = battery
-            if product_id is not None:
-                updates["product_id"] = product_id
-            if status is not None:
-                updates["status"] = status
-
-            if updates:
+        if _is_ack_message(message.topic, data) and db:
+            tag_id = _extract_tag_id_from_ack(message.topic, data)
+            if tag_id is not None:
                 with db.SessionLocal() as session:
-                    update_tag(session, tag_id, **updates)
+                    _acknowledge_latest_payload_for_tag(session, tag_id)
+            return
 
-        # Notify connected frontend clients.
-        if app and socketio:
-            with app.app_context():
-                socketio.emit(
-                    "tag_update",
-                    {
-                        "tag_id": tag_id,
-                        "battery": battery,
-                        "product_id": product_id,
-                        "status": status,
-                        "event": "heard",
-                    },
-                )
+        if _is_advertisement_message(message.topic, data) and db:
+            tag_id = _extract_tag_id_from_advertisement_topic(message.topic)
+            battery = _extract_battery_value(data)
+            if tag_id is None or battery is None:
+                return
 
-    elif event_type == "low_battery":
-        battery = data.get("battery")
-
-        # Persist low-battery state.
-        if db and battery is not None:
             with db.SessionLocal() as session:
-                update_tag(session, tag_id, battery_pct=battery)
-            
-        # Forward low battery event to the frontend.
-        if app and socketio:
-            with app.app_context():
-                socketio.emit(
-                    "tag_update",
-                    {
-                        "tag_id": tag_id,
-                        "battery": battery,
-                        "event": "low_battery",
-                    },
-                )
+                tag = update_tag(session, tag_id, battery_pct=battery)
+                if tag is None:
+                    return
+                from services.tag_service import tag_to_dictionary
 
-    elif event_type == "offline":
-        # Persist offline state.
-        if db:
-            with db.SessionLocal() as session:
-                update_tag(session, tag_id, status="offline")
+                tag_summary = tag_to_dictionary(tag)
 
-        # Forward offline event to the frontend.
-        if app and socketio:
-            with app.app_context():
-                socketio.emit(
-                    "tag_update",
-                    {
-                        "tag_id": tag_id,
-                        "event": "offline",
-                    },
-                )
+            if app and socketio:
+                with app.app_context():
+                    socketio.emit(
+                        "battery_update",
+                        {
+                            "tagId": tag_summary["id"],
+                            "batteryPct": tag_summary["batteryPct"],
+                            "status": tag_summary["status"],
+                        },
+                    )
+                    
+    except (json.JSONDecodeError, KeyError):
+        pass
+
+
+def _is_ack_message(topic: str, data: dict) -> bool:
+    return bool(ACK_TOPIC_PATTERN.match(topic)) and data.get("ack") is True
+
+
+def _is_advertisement_message(topic: str, data: dict) -> bool:
+    return bool(ADVERTISEMENT_TOPIC_PATTERN.match(topic)) and "battery" in data
+
+
+def _extract_tag_id_from_ack(topic: str, data: dict) -> int | None:
+    payload_tag_id = data.get("tagId")
+    if isinstance(payload_tag_id, int) and payload_tag_id > 0:
+        return payload_tag_id
+    return None
+
+
+def _extract_tag_id_from_advertisement_topic(topic: str) -> int | None:
+    match = ADVERTISEMENT_TOPIC_PATTERN.match(topic)
+    if not match:
+        return None
+    return int(match.group("tag_id"))
+
+
+def _extract_battery_value(data: dict) -> int | None:
+    raw_battery = data.get("battery")
+    if isinstance(raw_battery, bool):
+        return None
+    if isinstance(raw_battery, int):
+        battery = raw_battery
+    elif isinstance(raw_battery, float) and raw_battery.is_integer():
+        battery = int(raw_battery)
+    else:
+        return None
+
+    if not 0 <= battery <= 100:
+        return None
+
+    return battery
+
+
+def _acknowledge_latest_payload_for_tag(session, tag_id: int) -> bool:
+    tagpayload = get_latest_unacknowledged_tagpayload_for_tag(session, tag_id)
+    if tagpayload is None:
+        return False
+
+    update_tagpayload(session, tagpayload.id, acknowledged=True)
+    return True
