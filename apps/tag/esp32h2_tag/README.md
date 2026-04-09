@@ -83,3 +83,75 @@ you can see e.g. `ESP32H2 Dev Module on /dev/ttyUSB0` (for Linux)
 This will compile, build and then flash the source code to the **ESP32-H2-DevKitM-1**.
 
 **IMPORTANT:** Always use the Arduino IDE to edit, verify/debug and flash the `*.ino` file(s) to the **ESP32-H2-DevKitM-1**. For Git usage do as you normally do on your computer.
+
+## nRF Connect App Usage for BLE Testing
+
+Since the gateway is not yet implemented, the **nRF Connect** app is used as a temporary BLE client for testing communication with the tag.
+
+Using the app, team members can:
+
+- scan for the tag
+- connect to it over BLE
+- inspect its services and characteristics
+- send test data
+- verify responses during development
+
+## Before Scanning
+
+Before scanning for the tag in **nRF Connect**, ensure that the project code has been compiled and flashed to the **ESP32-H2-DevKitM-1**.
+
+If the firmware is not uploaded to the board, the tag may not advertise correctly and may therefore not appear in the BLE scan results.
+
+It is also recommended to keep the **Serial Monitor** open in the **Arduino IDE** during testing. This makes it easier to observe debug output and verify whether the tag is receiving data as expected.
+
+## Setup
+
+### iOS
+
+1. Open the **App Store**.
+2. Search for **nRF Connect for Mobile**.
+3. Install the app.
+4. Launch the app and open the scanner.
+5. Scan for the tag and select it from the list of available devices.
+6. Tap **Connect**.
+7. Once connected, the app will display the available BLE services and characteristics.
+
+### Android
+
+1. Open the **Google Play Store**.
+2. Search for **nRF Connect for Mobile**.
+3. Install the app.
+4. Launch the app and start scanning for nearby BLE devices.
+5. Select the tag from the list of available devices.
+6. Tap **Connect**.
+7. Once connected, the app will display the available BLE services and characteristics.
+
+## Sending Text to the Tag
+
+After connecting to the tag:
+
+1. Open the custom BLE service.
+2. Locate the characteristic used to **send payload data to the tag** *(identified as "Write" under Characteristics)*.
+3. Select the write option for that characteristic and set the value format to **UTF-8**, as the default format is typically **Byte Array (Hex)**.
+4. Enter the text to be sent to the tag.
+5. Send the value.
+6. Sent value should display on the  **WeAct Studio 2.13" Monochrome E-Paper Module**
+
+This step is used to test whether the tag can receive and process payload data correctly.
+
+## Debugging
+
+While sending text through **nRF Connect**, keep the **Serial Monitor** open in the **Arduino IDE**.
+
+This helps to:
+
+- verify that the **ESP32-H2-DevKitM-1** is running correctly
+- confirm that the payload has been received
+- identify issues during BLE testing
+
+If the tag does not appear in the scanner, first verify that:
+
+- the board is powered
+- the correct firmware has been flashed
+- BLE advertising is active
+- the Serial Monitor shows normal debug output
