@@ -19,7 +19,7 @@ static const char *ACKNOWLEDGE_CHARACTERISTIC_UUID =
 
 /* Stored values */
 static String payloadValue = "";
-static String acknowledgeValue = false;
+static String acknowledgeValue = "false";
 
 /* BLE objects */
 static BLEServer *bleServer = nullptr;
