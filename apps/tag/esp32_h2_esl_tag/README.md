@@ -11,7 +11,7 @@ The purpose is to help group members get their **WeAct Studio 2.13" Monochrome E
 
 - **ESP32-H2-DevKitM-1**.
 - **WeAct Studio 2.13" Monochrome E-Paper Module (122×250, SSD1680, FPC-7528B family)**.
-- USB-C to USB-C (with USB-C female to USB-A adapter if needed) cable.
+- USB-C to USB-C (with USB-C female to male USB-A adapter if needed) cable.
 
 ## Software Installation & Setup
 
@@ -98,7 +98,7 @@ Using the app, team members can:
 
 ## Before Scanning
 
-Before scanning for the tag in **nRF Connect**, ensure that the project code has been compiled and flashed to the **ESP32-H2**.
+Before scanning for the tag in **nRF Connect**, ensure that the project code has been compiled and flashed to the **ESP32-H2-DevKitM-1**.
 
 If the firmware is not uploaded to the board, the tag may not advertise correctly and may therefore not appear in the BLE scan results.
 
@@ -145,7 +145,7 @@ While sending text through **nRF Connect**, keep the **Serial Monitor** open in 
 
 This helps to:
 
-- verify that the ESP32-H2 is running correctly
+- verify that the **ESP32-H2-DevKitM-1** is running correctly
 - confirm that the payload has been received
 - identify issues during BLE testing
 
