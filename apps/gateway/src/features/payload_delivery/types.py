@@ -25,7 +25,7 @@ class PendingPayload:
     id: int
     tag_id: TagId
     title: str
-    final_price: int
+    final_price: float
     delivery_state: DeliveryState
     attempt_count: int
     last_attempted_at: datetime | None

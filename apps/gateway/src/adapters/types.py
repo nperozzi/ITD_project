@@ -19,7 +19,7 @@ class IncomingPayload:
 
     tag_id: TagId
     title: str
-    final_price: int
+    final_price: float
 
 
 @dataclass(frozen=True)

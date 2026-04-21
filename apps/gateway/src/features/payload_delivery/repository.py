@@ -28,7 +28,7 @@ class PayloadDeliveryRepository:
         self._session_factory = session_factory
         self._logger = logger or Logger("PayloadDeliveryRepository")
 
-    def enqueue(self, tag_id: TagId, title: str, final_price: int) -> PendingPayload:
+    def enqueue(self, tag_id: TagId, title: str, final_price: float) -> PendingPayload:
         with self._session_factory() as session:
             row = PayloadDeliveryRow(
                 tag_id=tag_id,

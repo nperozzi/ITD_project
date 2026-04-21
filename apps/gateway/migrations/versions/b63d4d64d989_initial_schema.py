@@ -23,7 +23,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('tag_id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=127), nullable=False),
-    sa.Column('final_price', sa.Integer(), nullable=False),
+    sa.Column('final_price', sa.Float(), nullable=False),
     sa.Column('delivery_state', sa.Enum('PENDING', 'DELIVERING', 'ACKNOWLEDGED', 'FAILED', name='deliverystate'), nullable=False),
     sa.Column('attempt_count', sa.Integer(), nullable=False),
     sa.Column('last_attempted_at', sa.DateTime(timezone=True), nullable=True),

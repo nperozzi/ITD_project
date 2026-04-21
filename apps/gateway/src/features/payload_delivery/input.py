@@ -12,4 +12,4 @@ class EnqueuePayloadInput(BaseModel):
 
     tag_id: TagId = Field(ge=1)
     title: str = Field(min_length=1, max_length=127)
-    final_price: int = Field(ge=0)
+    final_price: float = Field(ge=0)

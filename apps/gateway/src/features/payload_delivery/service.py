@@ -23,7 +23,7 @@ from logger import Logger
 MAX_PAYLOAD_BYTES = 127
 
 
-def encode_payload_bytes(title: str, final_price: int) -> bytes:
+def encode_payload_bytes(title: str, final_price: float) -> bytes:
     """Serialize payload into the bytes the firmware writes to its e-paper.
 
     Format kept intentionally simple and human-readable for MVP. The firmware

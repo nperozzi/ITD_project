@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Enum as SQLEnum, Integer, String
+from sqlalchemy import DateTime, Enum as SQLEnum, Float, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db.base import Base
@@ -23,7 +23,7 @@ class PayloadDeliveryRow(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     tag_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     title: Mapped[str] = mapped_column(String(127), nullable=False)
-    final_price: Mapped[int] = mapped_column(Integer, nullable=False)
+    final_price: Mapped[float] = mapped_column(Float, nullable=False)
     delivery_state: Mapped[DeliveryState] = mapped_column(
         SQLEnum(DeliveryState),
         nullable=False,
