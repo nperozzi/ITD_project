@@ -1,7 +1,7 @@
 """Entry point for the gateway daemon.
 
-Loads config, builds the DI container, starts the runtime, and runs forever
-until a SIGINT/SIGTERM arrives.
+Loads config, applies pending migrations, builds the DI container, starts the
+runtime, and runs forever until a SIGINT/SIGTERM arrives.
 """
 
 from __future__ import annotations
@@ -11,12 +11,15 @@ import signal
 
 from config import GatewayConfig
 from container import build_container
+from db.migrations import run_migrations
 from logger import Logger
 
 
 async def run() -> None:
     logger = Logger("gateway.main")
     config = GatewayConfig()
+
+    run_migrations(config.database_url, logger=logger)
     container = build_container(config)
 
     await container.gateway_runtime_service.start()

@@ -16,7 +16,6 @@ from adapters.backend.implementation.mqtt_backend_adapter import MVPBackendAdapt
 from adapters.tag.implementation.mock_tag_adapter import MockTagAdapter
 from adapters.tag.tag_adapter import AbstractTagAdapter
 from config import GatewayConfig
-from db.base import Base
 from db.session import build_engine, build_session_factory
 from features.gateway_runtime.service import GatewayRuntimeService
 from features.payload_delivery.repository import PayloadDeliveryRepository
@@ -57,7 +56,6 @@ def build_container(config: GatewayConfig) -> Container:
     root_logger = Logger("gateway", level=config.log_level)
 
     engine = build_engine(config.database_url)
-    Base.metadata.create_all(engine)
     session_factory = build_session_factory(engine)
 
     tag_registry_repository = TagRegistryRepository(session_factory=session_factory)
