@@ -25,7 +25,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/gateway",
-        "command": "pytest"
+        "command": "python -m pytest"
       }
     }
   }

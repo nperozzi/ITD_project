@@ -29,7 +29,7 @@ from logger import Logger
 
 
 PAYLOAD_TOPIC_PATTERN = re.compile(r"^b-g/tag(?P<tag_id>\d+)/payload$")
-PAYLOAD_TOPIC_SUBSCRIPTION = "b-g/tag+/payload"
+PAYLOAD_TOPIC_SUBSCRIPTION = "b-g/+/payload"
 
 
 class _IncomingPayloadWireFormat(BaseModel):
@@ -37,7 +37,7 @@ class _IncomingPayloadWireFormat(BaseModel):
 
     tag_id: TagId = Field(alias="tagId")
     title: str
-    final_price: int = Field(alias="finalPrice")
+    final_price: float = Field(alias="finalPrice")
 
     model_config = {"populate_by_name": True}
 
