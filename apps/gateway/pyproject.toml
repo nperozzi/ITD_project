@@ -1,0 +1,24 @@
+[project]
+name = "gateway"
+version = "0.1.0"
+description = "BLE gateway daemon that bridges ESL backend (MQTT) and ESP32 tag devices (BLE)."
+requires-python = ">=3.11"
+dependencies = [
+  "paho-mqtt==2.1.0",
+  "bleak==0.22.3",
+  "pydantic==2.9.2",
+  "pydantic-settings==2.6.1",
+  "SQLAlchemy==2.0.38",
+  "alembic==1.14.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==8.3.3",
+  "pytest-asyncio==0.24.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src"]
