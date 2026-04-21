@@ -4,13 +4,13 @@ This component forwards messages between two topic namespaces:
 - b-g/* (backend-facing)
 - g-t/* (tag-facing)
 """
-
+import os
 import time
 import sys
 import paho.mqtt.client as mqtt
 
-BROKER = "mosquitto"
-PORT = 1883
+BROKER = os.getenv("MQTT_BROKER", "mosquitto")
+PORT = int(os.getenv("MQTT_PORT", "1883"))
 
 is_connected = False
 
