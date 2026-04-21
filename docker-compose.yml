@@ -58,6 +58,16 @@ services:
     build: ./apps/gateway
     depends_on:
       - mosquitto
+    environment:
+      GATEWAY_MQTT_BROKER_HOST: mosquitto
+      GATEWAY_MQTT_BROKER_PORT: "1883"
+      GATEWAY_MQTT_CLIENT_ID: gateway-1
+      GATEWAY_TAG_ADAPTER: mock
+      GATEWAY_DATABASE_URL: sqlite:////data/gateway.db
+      GATEWAY_LOG_LEVEL: INFO
+    volumes:
+      - gateway_data:/data
+    restart: unless-stopped
 
   # Simulated electronic shelf label device.
   tag:
@@ -67,3 +77,4 @@ services:
 
 volumes:
   postgres_data:
+  gateway_data:
