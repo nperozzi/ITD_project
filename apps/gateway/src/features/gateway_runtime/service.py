@@ -90,6 +90,12 @@ class GatewayRuntimeService:
     async def _on_payload_ingress(self, payload: IncomingPayload) -> None:
         """Queue the payload and make a single immediate delivery attempt."""
 
+        self._logger.info(
+            "payload received tag=%s title=%r price=%s",
+            payload.tag_id,
+            payload.title,
+            payload.final_price,
+        )
         self._tag_registry_service.register_tag(
             RegisterTagInput(tag_id=payload.tag_id)
         )

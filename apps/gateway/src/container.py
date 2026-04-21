@@ -47,7 +47,15 @@ def _build_tag_adapter(config: GatewayConfig) -> AbstractTagAdapter:
         from adapters.tag.implementation.ble_tag_adapter import MVPTagAdapter
 
         return MVPTagAdapter()
-    return MockTagAdapter()
+
+    mock_tag_adapter = MockTagAdapter()
+    # Seed one mock BLE device so compose/dev runs can exercise the full
+    # connect -> write -> ack flow end to end. The auto-link policy in
+    # GatewayRuntimeService pairs this device with the first registered tag.
+    mock_tag_adapter.seed_tag(
+        "AA:BB:CC:DD:EE:01", battery_percent=88, rssi=-55
+    )
+    return mock_tag_adapter
 
 
 def build_container(config: GatewayConfig) -> Container:
