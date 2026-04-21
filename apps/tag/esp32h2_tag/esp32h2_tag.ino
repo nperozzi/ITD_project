@@ -45,6 +45,7 @@ GxEPD2_BW<GxEPD2_213_B74, GxEPD2_213_B74::HEIGHT>
 display(GxEPD2_213_B74(CS, DC, RST, BUSY));
 
 /* -------------------- DISPLAY FUNCTION -------------------- */
+// To be modded in the "tag_display_printout" branch.
 void displayPayload(const String &text) {
   display.setFullWindow();
   display.firstPage();
