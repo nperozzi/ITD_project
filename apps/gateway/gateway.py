@@ -65,6 +65,7 @@ async def _handle_tag_payload(topic: str, payload_text: str) -> None:
     print(f"Parsed payload: {payload}")
 
     await ble_adapter.send_payload(payload_text)
+    await asyncio.sleep(0.1)
     ack = await ble_adapter.wait_for_ack()
 
     if ack == TAG1.expected_ack:
