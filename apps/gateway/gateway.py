@@ -42,7 +42,6 @@ def on_connect(client, userdata, flags, rc, properties=None):
     # Subscribe to both directions that this gateway forwards.
     global is_connected
     print("Gateway connected")
-    sys.stdout.flush()
     is_connected = True
     client.subscribe("tag/+/payload")
     time.sleep(0.5)
@@ -58,7 +57,6 @@ def _handle_incoming_message(topic: str, payload_text: str) -> None:
 def _handle_tag_payload(topic: str, payload_text: str) -> None:
     payload = json.loads(payload_text)
     print(f"Parsed payload: {payload}")
-    sys.stdout.flush()
     pass
 
 if __name__ == "__main__":
