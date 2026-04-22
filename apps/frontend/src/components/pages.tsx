@@ -233,7 +233,11 @@ export function DashboardPage({
           <Button size="sm" onClick={() => setIsPriceModalOpen(true)}>
             Set Price
           </Button>
-          <p className="text-xs text-muted-foreground">Updates a product through `PATCH /api/products/{productId}`.</p>
+          <p className="text-xs text-muted-foreground">
+            {`Updates a product through PATCH /api/products/${
+              selectedProductId || ':productId'
+            }.`}
+          </p>
         </div>
       </Card>
 
