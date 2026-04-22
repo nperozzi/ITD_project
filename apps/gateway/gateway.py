@@ -8,8 +8,8 @@ import sys
 import json
 import re
 import paho.mqtt.client as mqtt
-import asyncio
-from bleak import BleakClient
+# import asyncio
+# from bleak import BleakClient
 
 BROKER = os.getenv("MQTT_BROKER", "mosquitto")
 PORT = int(os.getenv("MQTT_PORT", "1883"))
@@ -20,7 +20,7 @@ is_connected = False
 def main():
     mqtt_init()
 
-    
+
 
 
 def mqtt_init():
