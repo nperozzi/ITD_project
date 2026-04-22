@@ -26,7 +26,7 @@ async def main():
     if GATEWAY_MODE == "ble-test":
         await run_ble_test()
     else:
-        run_mqtt_gateway()
+        await run_mqtt_gateway()
 
 def mqtt_init():
     global is_connected
