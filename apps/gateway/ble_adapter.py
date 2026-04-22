@@ -37,10 +37,17 @@ class BleTagAdapter:
             await self.client.disconnect()
             self.client = None
 
-    def send_payload(self, payload_text: str) -> None:
-        # Next step: connect and write with Bleak.
-        print(f"Would send to {self.contract.name}: {payload_text}")
+    async def send_payload(self, payload_text: str) -> None:
+        data = payload_text.encode(self.contract.encoding)
+        await self.client.write_gatt_char(
+            self.contract.payload_char_uuid,
+            data
+        )
+        print(f"Sent to {self.contract.name}: {payload_text}")
 
-    def wait_for_ack(self) -> str | None:
-        # Next step: read notifications or ack characteristic.
-        return None
+
+    async def wait_for_ack(self) -> str | None:
+        data = await self.client.read_gatt_char(self.contract.ack_char_uuid)
+        ack = data.decode(self.contract.encoding)
+        print(f"Ack from {self.contract.name}: {ack}")
+        return ack

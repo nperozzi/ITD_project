@@ -21,7 +21,15 @@ async def main():
     # mqtt_init()
     adapter = BleTagAdapter(TAG1)
     await adapter.connect()
-    await asyncio.sleep(5)
+    test_payload = '{"tagId": 1, "title": "Coffee", "finalPrice": 12.5}'
+    await adapter.send_payload(test_payload)
+
+    ack = await adapter.wait_for_ack()
+    if ack == TAG1.expected_ack:
+        print("Tag acknowledged successfully")
+    else:
+        print(f"Unexpected ack: {ack}")
+
     await adapter.disconnect()
 
 def mqtt_init():
