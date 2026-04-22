@@ -55,7 +55,7 @@ def _handle_incoming_message(topic: str, payload_text: str) -> None:
         _handle_tag_payload(topic, payload_text)
 
 def _handle_tag_payload(topic: str, payload_text: str) -> None:
-    payload = json.laods(payload_text)
+    payload = json.loads(payload_text)
     print(f"Parsed payload: {payload}")
     sys.stdout.flush()
     pass
