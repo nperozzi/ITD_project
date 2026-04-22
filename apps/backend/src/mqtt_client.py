@@ -50,7 +50,7 @@ def publish_tag_payload(tag_id: int, payload_data: dict):
     # Publish a generated tag payload snapshot to the tag topic namespace.
     payload = json.dumps(payload_data)
     topic = f"tag/{tag_id}/payload"
-    client.publish(topic, payload, retain=True)
+    client.publish(topic, payload, retain=False)
 
 def on_connect(client, userdata, flags, rc, properties=None):
     # Called by paho-mqtt after broker connection succeeds.
