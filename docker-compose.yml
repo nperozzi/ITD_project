@@ -55,17 +55,5 @@ services:
     depends_on:
       - backend
 
-  # Topic bridge that forwards between backend-facing and tag-facing topics.
-  gateway:
-    build: ./apps/gateway
-    depends_on:
-      - mosquitto
-
-  # Simulated electronic shelf label device.
-  tag:
-    build: ./apps/tag
-    depends_on:
-      - mosquitto
-
 volumes:
   postgres_data:
