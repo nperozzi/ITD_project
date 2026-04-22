@@ -46,7 +46,7 @@ GxEPD2_BW<GxEPD2_213_B74, GxEPD2_213_B74::HEIGHT>
 display(GxEPD2_213_B74(CS, DC, RST, BUSY));
 
 /* -------------------- DISPLAY FUNCTION -------------------- */
-void displayPayload(const String &productName, const String &price) {
+void displayPayload(const String &title, const String &finalPrice) {
   display.setFullWindow();
   display.firstPage();
   display.setRotation(1);
@@ -58,10 +58,10 @@ void displayPayload(const String &productName, const String &price) {
     display.setTextWrap(true);
 
     display.setCursor(10, 40);
-    display.println(productName);
+    display.println(title);
 
     display.setCursor(10, 80);
-    display.println(price);
+    display.println(finalPrice);
 
   } while (display.nextPage());
 
@@ -72,16 +72,15 @@ void displayPayload(const String &productName, const String &price) {
 /*
   Expected JSON payload from gateway:  Fields can be updated accordingly 
   {
-    "tag_id": "TG_01",
-    "product_name": "Milk 1L",
-    "price": "29.00 SEK",
-    "status": "Ok"
+    "tagId": "TG_01",
+    "title": "Milk 1L",
+    "finalPrice": "29.00 SEK",
   }
 */
 bool extractDisplayFieldsFromJson(
     const String &jsonPayload,
-    String &productNameToDisplay,
-    String &priceToDisplay) {
+    String &titleToDisplay,
+    String &finalPriceToDisplay) {
 
   JsonDocument doc;
 
@@ -92,12 +91,12 @@ bool extractDisplayFieldsFromJson(
     return false;
   }
 
-  const char *tagId = doc["tag_id"];  // Validation field
-  const char *productName = doc["product_name"];
-  const char *price = doc["price"];
-  const char *status = doc["status"];
+  const char *tagId = doc["tagId"];  // Validation field
+  const char *title = doc["title"];
+  const char *finalPrice = doc["finalPrice"];
+  
 
-  if (tagId == nullptr || productName == nullptr || price == nullptr || status == nullptr) {
+  if (tagId == nullptr || title == nullptr || finalPrice == nullptr) {
     Serial.println("JSON missing one or more required fields");
     return false;
   }
@@ -112,8 +111,8 @@ bool extractDisplayFieldsFromJson(
     return false;
   }
 
-  productNameToDisplay = String(productName);
-  priceToDisplay = String(price);
+  titleToDisplay = String(title);
+  finalPriceToDisplay = String(finalPrice);
 
   return true;
 }
@@ -155,13 +154,13 @@ if (incomingPayload.length() == 0) {
     Serial.println("Raw JSON received over BLE:");
     Serial.println(incomingPayload);
 
-    String productName;
-    String price;
+    String title;
+    String finalPrice;
 
     bool parseOk = extractDisplayFieldsFromJson(
         incomingPayload,
-        productName,
-        price);
+        title,
+        finalPrice);
 
     if (!parseOk) {
       acknowledgeValue = "false";
@@ -176,9 +175,9 @@ if (incomingPayload.length() == 0) {
       return;
     }
 
-    payloadValue = productName + " | " + price;
+    payloadValue = title + " | " + finalPrice;
 
-    displayPayload(productName, price);
+    displayPayload(title, finalPrice);
 
     acknowledgeValue = "true";
     acknowledgeCharacteristic->setValue(acknowledgeValue.c_str());
@@ -188,10 +187,10 @@ if (incomingPayload.length() == 0) {
     Serial.println(characteristic->getHandle());
 
     Serial.print("Displayed product name: ");
-    Serial.println(productName);
+    Serial.println(title);
 
     Serial.print("Displayed price: ");
-    Serial.println(price);
+    Serial.println(finalPrice);
 
     Serial.print("Acknowledge value updated to: ");
     Serial.println(acknowledgeValue);
