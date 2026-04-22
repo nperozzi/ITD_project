@@ -40,11 +40,13 @@ def on_connect(client, userdata, flags, rc, properties=None):
     print("Gateway connected")
     sys.stdout.flush()
     is_connected = True
-    client.subscribe("b-g/tag1/price")
+    client.subscribe("b-g/+/payload")
     time.sleep(0.5)
 
 def on_message(client, userdata, msg):
-    print(f"Payload: ", msg.payload)
+    print(f"Topic: {msg.topic}")
+    print(f"Payload: {msg.payload.decode()}")
+    sys.stdout.flush()
 
 
 if __name__ == "__main__":
