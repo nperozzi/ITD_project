@@ -15,7 +15,6 @@ RUN apt-get update \
        bluez \
        dbus \
        libglib2.0-0 \
-       paho-mqtt \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
