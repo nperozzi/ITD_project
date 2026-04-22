@@ -58,7 +58,7 @@ def on_message(client, userdata, msg):
     
 async def _handle_incoming_message(topic: str, payload_text: str) -> None:
     if topic.startswith("tag/") and topic.endswith("/payload"):
-        _handle_tag_payload(topic, payload_text)
+        await _handle_tag_payload(topic, payload_text)
 
 async def _handle_tag_payload(topic: str, payload_text: str) -> None:
     payload = json.loads(payload_text)
