@@ -39,7 +39,7 @@ def test_ack_message_marks_latest_payload_as_acknowledged():
         stored_payload = create_tagpayload(session, tag_id=tag.id, payload_json={"price": 10.0})
 
     message = SimpleNamespace(
-        topic=f"b-g/tag{tag.id}/ack",
+        topic=f"tag/{tag.id}/ack",
         payload=json.dumps({"tagId": tag.id, "ack": True}).encode(),
     )
 
@@ -64,7 +64,7 @@ def test_battery_message_updates_specific_tag_and_emits_socket_event():
         tag = create_tag(session, status=Status.ONLINE, battery_pct=80)
 
     message = SimpleNamespace(
-        topic=f"b-g/tag{tag.id}/advertisement",
+        topic=f"tag/{tag.id}/advertisement",
         payload=json.dumps({"battery": 42, "rssi": -62}).encode(),
     )
 

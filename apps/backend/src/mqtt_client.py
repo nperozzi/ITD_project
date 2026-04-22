@@ -14,8 +14,8 @@ from db.crud.tagpayload import get_latest_unacknowledged_tagpayload_for_tag, upd
 
 BROKER = "mosquitto"
 PORT = 1883
-ACK_TOPIC_PATTERN = re.compile(r"^b-g/tag(?P<tag_id>\d+)/ack$")
-ADVERTISEMENT_TOPIC_PATTERN = re.compile(r"^b-g/tag(?P<tag_id>\d+)/advertisement$")
+ACK_TOPIC_PATTERN = re.compile(r"^tag/(?P<tag_id>\d+)/ack$")
+ADVERTISEMENT_TOPIC_PATTERN = re.compile(r"^tag/(?P<tag_id>\d+)/advertisement$")
 
 db = None
 app = None
@@ -49,7 +49,7 @@ def set_db(db_instance):
 def publish_tag_payload(tag_id: int, payload_data: dict):
     # Publish a generated tag payload snapshot to the tag topic namespace.
     payload = json.dumps(payload_data)
-    topic = f"b-g/tag{tag_id}/payload"
+    topic = f"tag/{tag_id}/payload"
     client.publish(topic, payload, retain=True)
 
 def on_connect(client, userdata, flags, rc, properties=None):
@@ -58,8 +58,8 @@ def on_connect(client, userdata, flags, rc, properties=None):
     sys.stdout.flush()
     
     # Listen for advertisement payloads coming back from gateway/tag.
-    client.subscribe("b-g/+/advertisement")
-    client.subscribe("b-g/+/ack")
+    client.subscribe("tag/+/advertisement")
+    client.subscribe("tag/+/ack")
 
 def on_message(client, userdata, message):
     # Called whenever a subscribed MQTT message arrives.

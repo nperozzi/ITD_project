@@ -194,7 +194,7 @@ Response:
 Behavior:
 - Generates the payload for the tag.
 - Persists it with `acknowledged=false`.
-- Publishes the payload to MQTT topic `b-g/tag{tagId}/payload`.
+- Publishes the payload to MQTT topic `tag/{tagId}/payload`.
 - Returns `400` if the tag exists but is not assigned to a product.
 - Returns `404` if the tag does not exist.
 
@@ -251,7 +251,7 @@ Behavior:
 
 ## MQTT Contract
 ### Published by Backend
-#### `b-g/tag{tagId}/payload`
+#### `tag/{tagId}/payload`
 Payload shape:
 ```json
 {
@@ -266,7 +266,7 @@ Notes:
 - Also produced indirectly when a tag is created with a `productId` or when a tag’s `productId` is updated to a new assigned product.
 
 ### Subscribed by Backend
-#### `b-g/tag{tagId}/advertisement`
+#### `tag/{tagId}/advertisement`
 Expected incoming payload:
 ```json
 {
@@ -280,7 +280,7 @@ Current backend behavior:
 - It stores the incoming battery value for that specific tag.
 - It emits Socket.IO `battery_update` with `tagId`, `batteryPct`, and normalized tag `status`.
 
-#### `b-g/tag{tagId}/ack`
+#### `tag/{tagId}/ack`
 Expected incoming payload:
 ```json
 {
@@ -300,9 +300,9 @@ Frontend expectations:
 
 Gateway or broker-side expectations:
 
-- Consume backend payload snapshots from `b-g/tag{tagId}/payload`.
-- Publish acknowledgements to `b-g/tag{tagId}/ack`.
-- Publish advertisement messages to `b-g/tag{tagId}/advertisement`.
+- Consume backend payload snapshots from `tag/{tagId}/payload`.
+- Publish acknowledgements to `tag/{tagId}/ack`.
+- Publish advertisement messages to `tag/{tagId}/advertisement`.
 
 ## Known Implementation Notes
 - Currency in generated tag payloads is currently fixed to `EUR`.

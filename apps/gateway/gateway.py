@@ -1,16 +1,17 @@
 """MQTT gateway service.
 
-This component forwards messages between two topic namespaces:
-- b-g/* (backend-facing)
-- g-t/* (tag-facing)
+This component forwards messages between backend and tag topics.
 """
 import os
 import time
 import sys
+import json
+import re
 import paho.mqtt.client as mqtt
 
 BROKER = os.getenv("MQTT_BROKER", "mosquitto")
 PORT = int(os.getenv("MQTT_PORT", "1883"))
+PAYLOAD_TOPIC_PATTERN = re.compile(r"^tag(?P<tag_id>\d+)/payload$")
 
 is_connected = False
 
@@ -40,12 +41,13 @@ def on_connect(client, userdata, flags, rc, properties=None):
     print("Gateway connected")
     sys.stdout.flush()
     is_connected = True
-    client.subscribe("b-g/+/payload")
+    client.subscribe("tag/+/payload")
     time.sleep(0.5)
 
 def on_message(client, userdata, msg):
+    payload_text = msg.payload.decode()
     print(f"Topic: {msg.topic}")
-    print(f"Payload: {msg.payload.decode()}")
+    print(f"Payload: {payload_text}")
     sys.stdout.flush()
 
 
