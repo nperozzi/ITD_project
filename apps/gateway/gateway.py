@@ -8,8 +8,8 @@ import sys
 import json
 import re
 import paho.mqtt.client as mqtt
-# import asyncio
-# from bleak import BleakClient
+from ble_adapter import BleTagAdapter, TAG1
+import asyncio
 
 BROKER = os.getenv("MQTT_BROKER", "mosquitto")
 PORT = int(os.getenv("MQTT_PORT", "1883"))
@@ -17,11 +17,12 @@ PAYLOAD_TOPIC_PATTERN = re.compile(r"^tag(?P<tag_id>\d+)/payload$")
 
 is_connected = False
 
-def main():
-    mqtt_init()
-
-
-
+async def main():
+    # mqtt_init()
+    adapter = BleTagAdapter(TAG1)
+    await adapter.connect()
+    await asyncio.sleep(5)
+    await adapter.disconnect()
 
 def mqtt_init():
     global is_connected
@@ -61,4 +62,4 @@ def _handle_tag_payload(topic: str, payload_text: str) -> None:
     pass
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
