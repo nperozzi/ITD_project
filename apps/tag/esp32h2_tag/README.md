@@ -48,6 +48,9 @@ Go to `Tools -> Board: ... -> esp32 -> Select 'ESP32H2 Dev Module'`.
 
 Go to `Tools -> Manage Libraries... -> Search for 'GxEPD2' by 'Jean-Marc Zingg' -> Click 'INSTALL'`.
 
+### 4. Install **ArduinoJSON** library for JSON handling
+Go to `Tools -> Manage Libraries... -> Search for 'ArduinoJson' by 'Benoit Blanchon' -> Click 'INSTALL'`
+
 ## Wiring Setup
 
 1. Connect the USB-C to USB-C cable to first to the `UART` USB-C port on the **ESP32-H2-DevKitM-1**.
@@ -133,7 +136,10 @@ After connecting to the tag:
 1. Open the custom BLE service.
 2. Locate the characteristic used to **send payload data to the tag** *(identified as "Write" under Characteristics)*.
 3. Select the write option for that characteristic and set the value format to **UTF-8**, as the default format is typically **Byte Array (Hex)**.
-4. Enter the text to be sent to the tag.
+4. Enter the text to be sent to the tag (example JSON below) exactly as written:
+```bash
+{"tagId":"TG_01","title":"Apple","finalPrice":"420 SEK"}
+```
 5. Send the value.
 6. Sent value should display on the  **WeAct Studio 2.13" Monochrome E-Paper Module**
 
