@@ -15,10 +15,10 @@ class BleTagContract:
 
 TAG1 = BleTagContract(
     name="TAG1",
-    mac_address="A8:42:E3:CA:AA:A2",
-    service_uuid="12345678-1234-1234-1234-1234567890ab",
-    payload_char_uuid="abcd1234-5678-90ab-cdef-1234567890ab",
-    ack_char_uuid="abcd1234-5678-90ab-cdef-1234567890ac",
+    mac_address="74:4D:BD:63:C3:26",
+    service_uuid="B8E4F533-E530-4D1D-B54C-0D5D5A9A5A4B",
+    payload_char_uuid="99CFD161-DCD8-4BEB-86B2-48673AEAE284",
+    ack_char_uuid="53B04C05-A5E1-475B-BC9E-61C00112ACDE",
     expected_ack="OK",
 )
 
