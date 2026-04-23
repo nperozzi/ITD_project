@@ -145,6 +145,11 @@ After connecting to the tag:
 
 This step is used to test whether the tag can receive and process payload data correctly.
 
+**OBS**
+
+The expected fields of validation are the keys sent by the the **Gateway/Backend** which are - 'tagId', 'title' and 'finalPrice'
+{"tagId":" ","title":" ","finalPrice":" "}.
+
 ## Debugging
 
 While sending text through **nRF Connect**, keep the **Serial Monitor** open in the **Arduino IDE**.
