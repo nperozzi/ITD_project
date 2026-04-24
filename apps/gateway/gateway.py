@@ -77,7 +77,7 @@ async def _handle_tag_payload(topic: str, payload_text: str) -> None:
 async def run_ble_test():
     await ble_adapter.connect()
 
-    test_payload = '{"tagId": "1", "title": "Bread", "finalPrice": "10.0"}'
+    test_payload = '{"tagId": 1, "title": "Bread", "finalPrice": 10.0}'
     await ble_adapter.send_payload(test_payload)
 
     ack = await ble_adapter.wait_for_ack()
