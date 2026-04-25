@@ -45,12 +45,14 @@ def mqtt_init():
 
 def on_connect(mqtt_client, userdata, flags, rc, properties=None):
     global is_connected
-    print("Gateway connected")
     is_connected = True
+    print("- Gateway connected to Backend")
+
     mqtt_client.subscribe("tag/+/payload")
     time.sleep(0.5)
 
 def on_message(mqtt_client, userdata, msg):
+    print("- Payload from Backend received")
     payload_text = msg.payload.decode()
     asyncio.run_coroutine_threadsafe(
         _handle_incoming_message(msg.topic, payload_text),
