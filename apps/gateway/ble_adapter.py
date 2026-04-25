@@ -30,7 +30,7 @@ class BleTagAdapter:
     async def connect(self) -> None:
         self.client = BleakClient(self.contract.mac_address)
         await self.client.connect()
-        print(f"Connected to {contract.name}: {self.client.is_connected}")
+        print(f"Connected to tag: {self.client.is_connected}")
 
     async def disconnect(self) -> None:
         if self.client is not None:
