@@ -74,6 +74,7 @@ def on_message(client, userdata, message):
             tag_id = _extract_tag_id_from_ack(message.topic, data)
             if tag_id is not None:
                 with db.SessionLocal() as session:
+                    print(f"Saving ACK in db. ACK = {data.ack}")
                     _acknowledge_latest_payload_for_tag(session, tag_id)
             return
 
@@ -149,6 +150,5 @@ def _acknowledge_latest_payload_for_tag(session, tag_id: int) -> bool:
     tagpayload = get_latest_unacknowledged_tagpayload_for_tag(session, tag_id)
     if tagpayload is None:
         return False
-
     update_tagpayload(session, tagpayload.id, acknowledged=True)
     return True
