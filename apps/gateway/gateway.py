@@ -16,6 +16,7 @@ GATEWAY_MODE = os.getenv("GATEWAY_MODE", "mqtt")
 PAYLOAD_TOPIC_PATTERN = re.compile(r"^tag(?P<tag_id>\d+)/payload$")
 
 is_connected = False
+mqtt_client = None
 event_loop = None
 ble_adapter = BleTagAdapter(TAG1)
 
@@ -29,12 +30,12 @@ async def main():
         await run_mqtt_gateway()
 
 def mqtt_init():
-    global is_connected
-    client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
-    client.on_connect = on_connect
-    client.on_message = on_message
-    client.connect(BROKER, PORT, 60)
-    client.loop_start()
+    global is_connected, mqtt_client
+    mqtt_client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
+    mqtt_client.on_connect = on_connect
+    mqtt_client.on_message = on_message
+    mqtt_client.connect(BROKER, PORT, 60)
+    mqtt_client.loop_start()
 
     while not is_connected:
         time.sleep(0.1)
@@ -42,14 +43,14 @@ def mqtt_init():
     while True:
         time.sleep(1)
 
-def on_connect(client, userdata, flags, rc, properties=None):
+def on_connect(mqtt_client, userdata, flags, rc, properties=None):
     global is_connected
     print("Gateway connected")
     is_connected = True
-    client.subscribe("tag/+/payload")
+    mqtt_client.subscribe("tag/+/payload")
     time.sleep(0.5)
 
-def on_message(client, userdata, msg):
+def on_message(mqtt_client, userdata, msg):
     payload_text = msg.payload.decode()
     asyncio.run_coroutine_threadsafe(
         _handle_incoming_message(msg.topic, payload_text),
@@ -62,17 +63,26 @@ async def _handle_incoming_message(topic: str, payload_text: str) -> None:
 
 async def _handle_tag_payload(topic: str, payload_text: str) -> None:
     payload = json.loads(payload_text)
-    print(f"Parsed payload: {payload}")
-
     await ble_adapter.send_payload(payload_text)
     await asyncio.sleep(0.1)
+    print(f"- Parsed payload: {payload}")
+
     ack = await ble_adapter.wait_for_ack()
+    print(f"- Payload ACK received: {ack}")
 
-    if ack == TAG1.expected_ack:
-        print("Tag acknowledged successfully")
-    else:
-        print(f"Unexpected ack: {ack}")
+    tag_id = int(payload["tagId"])
+    ack_topic = f"tag/{tag_id}/ack"
+    ack_json_payload = _convert_to_ack_payload(tag_id, ack)
 
+    mqtt_client.publish(ack_topic, ack_json_payload)
+    print("- ACK sent to backend")
+
+def _convert_to_ack_payload(tag_id: int, ack: str) -> str:
+    ack_payload = {
+        "tagId": int(tag_id),
+        "ack": ack == TAG1.expected_ack
+    }
+    return json.dumps(ack_payload)
 
 async def run_ble_test():
     await ble_adapter.connect()
