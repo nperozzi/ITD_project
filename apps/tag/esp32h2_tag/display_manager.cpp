@@ -56,7 +56,7 @@ void displayDefaultScreen() {
 
   } while (display.nextPage());
 
-  Serial.println("Default screen displayed on e-paper");
+  Serial.println("Power-on default displayed on e-paper display.");
 }
 
 void displayPayload(const String &title, const String &finalPrice) {
