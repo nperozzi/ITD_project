@@ -41,14 +41,14 @@ void displayDefaultScreen() {
     display.print(DEVICE_NAME);
 
     // Main status
-    display.setTextSize(2);
-    display.setCursor(92, 48);
-    display.print("READY");
+    // display.setTextSize(2);
+    // display.setCursor(92, 48);
+    // display.print("READY");
 
     // Waiting message
-    display.setTextSize(1);
-    display.setCursor(58, 75);
-    display.print("Waiting for data");
+    // display.setTextSize(1);
+    // display.setCursor(58, 75);
+    // display.print("Waiting for data");
 
     // Bottom status line
     display.setCursor(24, 100);
