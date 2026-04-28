@@ -17,6 +17,48 @@ void initDisplay() {
   display.init(115200, true, 2, false);
 }
 
+void displayDefaultScreen() {
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+
+  do {
+    display.fillScreen(GxEPD_WHITE);
+    display.setTextColor(GxEPD_BLACK);
+    display.setFont(NULL);
+    display.setTextWrap(false);
+
+    // Outer frame
+    display.drawRect(4, 4, 242, 114, GxEPD_BLACK);
+    display.drawRect(8, 8, 234, 106, GxEPD_BLACK);
+
+    // Header
+    display.setTextSize(1);
+    display.setCursor(16, 20);
+    display.print("ESL TAG");
+
+    display.setCursor(196, 20);
+    display.print(DEVICE_NAME);
+
+    // Main status
+    display.setTextSize(2);
+    display.setCursor(92, 48);
+    display.print("READY");
+
+    // Waiting message
+    display.setTextSize(1);
+    display.setCursor(58, 75);
+    display.print("Waiting for data");
+
+    // Bottom status line
+    display.setCursor(24, 100);
+    display.print("BLE advertising - no update yet");
+
+  } while (display.nextPage());
+
+  Serial.println("Default screen displayed on e-paper");
+}
+
 void displayPayload(const String &title, const String &finalPrice) {
   display.setFullWindow();
   display.firstPage();

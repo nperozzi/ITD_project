@@ -121,7 +121,7 @@ void setup() {
   Serial.println("Starting BLE tag with e-paper");
 
   initDisplay();
-  displayPayload("WAITING...", "");
+  displayDefaultScreen();
 
   BLEDevice::init(DEVICE_NAME);
 
