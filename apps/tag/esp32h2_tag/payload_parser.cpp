@@ -18,23 +18,49 @@ bool extractDisplayFieldsFromJson(
     return false;
   }
 
-  const char *tagId = doc["tagId"];
-  const char *title = doc["title"];
-  const char *finalPrice = doc["finalPrice"];
-  // const char *status = doc["status"];
-
-  if (tagId == nullptr || title == nullptr || finalPrice == nullptr) {
-    Serial.println("JSON missing one or more required fields");
+  if(!doc["tagId"].is<int>() && !doc["tagId"].is<const char *>()){
+    Serial.println("JSON tagId missing or wrong type");
     return false;
   }
 
-  if (strcmp(tagId, DEVICE_NAME) != 0) {
+  if(!doc["title"].is<const char *>()) {
+    Serial.println("JSON title missing or wrong type");
+    return false;
+  }
+
+  if(!doc["finalPrice"].is<float>() && !doc["finalPrice"].is<int>()){
+    Serial.println("JSON finalPrice missing or wrong type");
+    return false;
+  }
+
+  bool tagMatches = false;
+
+  if (doc["tagId"].is <int>()){
+    int incomingTagId = doc["tagId"].as<int>();
+
+    if (incomingTagId == TAG_ID_NUMBER){
+      tagMatches = true;
+    }
+  }
+
+  if (doc["tagId"].is<const char *>()) {
+    const char *incomingTagName = doc["tagId"].as<const char *>();
+
+    if(strcmp(incomingTagName, DEVICE_NAME) == 0) {
+      tagMatches = true;
+    }
+  }
+
+  if (!tagMatches) {
     Serial.println("Payload rejected: tagId does not match this tag");
     return false;
   }
 
+  const char *title = doc["title"].as<const char *>();
+  float finalPrice = doc["finalPrice"].as<float>();
+  
   titleToDisplay = String(title);
-  finalPriceToDisplay = String(finalPrice);
+  finalPriceToDisplay = String(finalPrice, 2);
 
   return true;
 }

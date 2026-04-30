@@ -4,6 +4,7 @@
 
 /* BLE */
 static const char DEVICE_NAME[] = "TG_01";
+static const int TAG_ID_NUMBER = 1;
 
 static const char TAG_SERVICE_UUID[] =
     "B8E4F533-E530-4D1D-B54C-0D5D5A9A5A4B";

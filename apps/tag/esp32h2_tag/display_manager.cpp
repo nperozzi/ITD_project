@@ -63,18 +63,34 @@ void displayPayload(const String &title, const String &finalPrice) {
   display.setFullWindow();
   display.firstPage();
   display.setRotation(1);
-  display.setTextSize(2);
+  //display.setTextSize(2);
 
   do {
     display.fillScreen(GxEPD_WHITE);
     display.setTextColor(GxEPD_BLACK);
-    display.setTextWrap(true);
+    display.setFont(NULL);
+    display.setTextWrap(false);
 
-    display.setCursor(10, 40);
+    // Outer frame
+    display.drawRect(4, 4, 242, 114, GxEPD_BLACK);
+    display.drawRect(8, 8, 234, 106, GxEPD_BLACK);
+
+    // Header
+    display.setTextSize(1);
+    display.setCursor(16, 20);
+    display.print("ESL TAG");
+
+    display.setCursor(196, 20);
+    display.print(DEVICE_NAME);
+
+    // Payload content
+    display.setTextSize(2);
+
+    display.setCursor(10, 50);
     display.println(title);
 
-    display.setCursor(10, 80);
-    display.println(finalPrice);
+    display.setCursor(10, 85);
+    display.println(finalPrice + " SEK");
 
   } while (display.nextPage());
 
