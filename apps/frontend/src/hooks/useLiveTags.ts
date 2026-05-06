@@ -43,7 +43,7 @@ export function useLiveTags(initialTags: Tag[] | undefined): LiveTagsState {
     });
 
     socket.on('battery_update', (data: BatteryUpdateEvent) => {
-      if (!Number.isInteger(data?.tagId) || typeof data?.batteryPct !== 'number') {
+      if (typeof data?.tagId !== 'number' || typeof data?.batteryPct !== 'number') {
         return;
       }
 

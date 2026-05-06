@@ -13,7 +13,8 @@ dist/
 
 # VScode configs
 *.vscode
+.codex
 
-# macOS FInder metadata
+# macOS Finder metadata
 .DS_Store
 **/.DS_Store

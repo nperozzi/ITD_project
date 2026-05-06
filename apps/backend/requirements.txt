@@ -15,3 +15,6 @@ psycopg2-binary==2.9.10
 # ORM + migrations
 SQLAlchemy==2.0.38
 alembic==1.14.1
+
+# Test runner for in-container verification
+pytest==8.3.5

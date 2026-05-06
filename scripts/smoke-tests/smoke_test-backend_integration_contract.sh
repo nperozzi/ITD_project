@@ -220,7 +220,7 @@ main() {
     "Latest payload after explicit publish was not pending for tag 1"
 
   log "Checking MQTT ACK handling"
-  publish_mqtt_json "g-b/tag1/ack" "{'tagId': 1, 'ack': True}"
+  publish_mqtt_json "b-g/tag1/ack" "{'tagId': 1, 'ack': True}"
   sleep 1
 
   request GET /api/tag-payloads

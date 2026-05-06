@@ -92,7 +92,7 @@ export default function App(): JSX.Element {
       case 'products':
         return <ProductsPage products={products} />;
       case 'tags':
-        return <TagsPage tags={liveTags} />;
+        return <TagsPage tags={liveTags} products={products} />;
       case 'promotions':
         return <PromotionsPage promotions={promotions} />;
       default:

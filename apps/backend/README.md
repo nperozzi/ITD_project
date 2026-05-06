@@ -15,3 +15,12 @@ This module is where system decisions are made. It translates user intent (for e
 ## Audience
 
 New contributors should think of this module as the orchestration layer between the user interface, messaging flow, and device-facing behavior.
+
+## Container Testing
+
+The backend container includes `pytest`, and the repository test directory is mounted at `/tests`.
+This allows targeted checks such as:
+
+```bash
+docker compose exec -T backend python -m pytest /tests/test_mqtt_client.py -q
+```
