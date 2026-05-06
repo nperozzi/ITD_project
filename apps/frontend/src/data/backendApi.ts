@@ -64,6 +64,11 @@ export function updateProductPrice(productId: number, price: number): Promise<Pr
   return patchJson<Product>(`/api/products/${productId}`, { price });
 }
 
+export function updateTagProductAssignment(tagId: number, productId: number | null): Promise<Tag> {
+  // Reassigning a tag goes through the tag PATCH route so the backend can republish the label payload.
+  return patchJson<Tag>(`/api/tags/${tagId}`, { productId });
+}
+
 export function getApiBaseUrl(): string {
   // Socket.IO hook uses the same base URL as REST calls.
   return API_BASE_URL;

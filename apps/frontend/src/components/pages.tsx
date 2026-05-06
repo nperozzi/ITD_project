@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { useSWRConfig } from 'swr';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Modal } from './ui/modal';
-import { updateProductPrice } from '../data/backendApi';
+import { updateProductPrice, updateTagProductAssignment } from '../data/backendApi';
 import type {
   Gateway,
   Product,
@@ -419,9 +420,64 @@ export function ProductsPage({ products }: ProductsPageProps): JSX.Element {
 
 export interface TagsPageProps {
   tags: Tag[];
+  products: Product[];
 }
 
-export function TagsPage({ tags }: TagsPageProps): JSX.Element {
+export function TagsPage({ tags, products }: TagsPageProps): JSX.Element {
+  const { mutate } = useSWRConfig();
+  const [isInspectModalOpen, setIsInspectModalOpen] = useState(false);
+  const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [isSubmittingAssignment, setIsSubmittingAssignment] = useState(false);
+  const [assignmentFeedback, setAssignmentFeedback] = useState<string | null>(null);
+
+  const productById = new Map(products.map((product) => [product.id, product]));
+
+  const openInspectModal = (tag: Tag): void => {
+    setSelectedTag(tag);
+    setSelectedProductId(tag.productId === null ? '' : String(tag.productId));
+    setAssignmentFeedback(null);
+    setIsInspectModalOpen(true);
+  };
+
+  const closeInspectModal = (): void => {
+    setIsInspectModalOpen(false);
+    setSelectedTag(null);
+    setSelectedProductId('');
+    setAssignmentFeedback(null);
+  };
+
+  const submitAssignment = async (): Promise<void> => {
+    if (!selectedTag) {
+      return;
+    }
+
+    const nextProductId = selectedProductId.trim() === '' ? null : Number(selectedProductId);
+    if (nextProductId !== null && (!Number.isInteger(nextProductId) || nextProductId <= 0)) {
+      setAssignmentFeedback('Please choose a valid product.');
+      return;
+    }
+
+    setIsSubmittingAssignment(true);
+    setAssignmentFeedback(null);
+    try {
+      const updatedTag = await updateTagProductAssignment(selectedTag.id, nextProductId);
+      setSelectedTag(updatedTag);
+      setSelectedProductId(updatedTag.productId === null ? '' : String(updatedTag.productId));
+      setAssignmentFeedback(
+        updatedTag.productId === null
+          ? `Tag ${updatedTag.id} is now unassigned.`
+          : `Tag ${updatedTag.id} is now assigned to ${productById.get(updatedTag.productId)?.name ?? `product ${updatedTag.productId}`}.`
+      );
+      await mutate('tags');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update tag assignment.';
+      setAssignmentFeedback(message);
+    } finally {
+      setIsSubmittingAssignment(false);
+    }
+  };
+
   return (
     <section className="space-y-4">
       <SectionHeader
@@ -434,20 +490,95 @@ export function TagsPage({ tags }: TagsPageProps): JSX.Element {
           <div key={tag.id} className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-3">
             <div>
               <p className="font-medium">{tag.id}</p>
-              <p className="text-sm text-muted-foreground">Product: {tag.productId} · Location: {tag.shelfLocationId}</p>
+              <p className="text-sm text-muted-foreground">
+                Product: {tag.productId === null ? 'Unassigned' : productById.get(tag.productId)?.name ?? `#${tag.productId}`}
+                {' · '}
+                Location: {tag.shelfLocationId === null ? 'Unassigned' : `#${tag.shelfLocationId}`}
+              </p>
               <p className="text-sm text-muted-foreground">Battery: {tag.batteryPct}%</p>
             </div>
             <div className="flex items-center gap-2">
               <span className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${statusPillClass(tag.status)}`}>
                 {tag.status}
               </span>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => openInspectModal(tag)}>
                 Inspect
               </Button>
             </div>
           </div>
         ))}
       </Card>
+
+      <Modal
+        open={isInspectModalOpen}
+        title={selectedTag ? `Inspect tag ${selectedTag.id}` : 'Inspect tag'}
+        description="Review the current assignment and move this tag to another product if needed."
+        onClose={closeInspectModal}
+      >
+        {selectedTag ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 rounded-lg border border-border bg-background p-3 text-sm md:grid-cols-2">
+              <div>
+                <p className="text-muted-foreground">Tag ID</p>
+                <p className="font-medium">{selectedTag.id}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Status</p>
+                <p className="font-medium">{selectedTag.status}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Battery</p>
+                <p className="font-medium">{selectedTag.batteryPct}%</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Current product</p>
+                <p className="font-medium">
+                  {selectedTag.productId === null
+                    ? 'Unassigned'
+                    : productById.get(selectedTag.productId)?.name ?? `#${selectedTag.productId}`}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm text-muted-foreground" htmlFor="tag-product-select">
+                Assign product
+              </label>
+              <select
+                id="tag-product-select"
+                value={selectedProductId}
+                onChange={(event) => setSelectedProductId(event.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Unassigned</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name} ({product.sku})
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Saving a new product assignment will republish the tag payload from the backend.
+              </p>
+            </div>
+
+            {assignmentFeedback ? <p className="text-sm text-muted-foreground">{assignmentFeedback}</p> : null}
+
+            <div className="flex items-center justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={closeInspectModal}>
+                Close
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => void submitAssignment()}
+                disabled={isSubmittingAssignment || products.length === 0}
+              >
+                {isSubmittingAssignment ? 'Saving...' : 'Save assignment'}
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
     </section>
   );
 }
