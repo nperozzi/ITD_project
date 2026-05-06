@@ -82,10 +82,10 @@ bun run nx run-many -t check --projects=backend,gateway,tag
 1. Browser updates a product price through `PATCH /api/products/{productId}`.
 2. Backend stores the new product price in the database.
 3. Backend generates a fresh tag payload for each tag assigned to that product.
-4. Backend publishes each payload to MQTT topic `b-g/tag{tagId}/payload`.
+4. Backend publishes each payload to MQTT topic `tag/{tagId}/payload`.
 5. Gateway forwards the payload to the tag-side namespace.
-6. Tag simulator publishes advertisement data to `g-t/tag1/advertisement`.
-7. Gateway forwards that advertisement to `b-g/tag1/advertisement`.
+6. Tag simulator publishes advertisement data to `tag/1/advertisement`.
+7. Gateway forwards that advertisement to `tag/1/advertisement`.
 8. Backend stores battery and emits `battery_update` to browser via Socket.IO.
 
 That is why all four services are needed for full end-to-end behavior.

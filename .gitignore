@@ -13,4 +13,4 @@ dist/
 
 # VScode configs
 *.vscode
-
+.codex
