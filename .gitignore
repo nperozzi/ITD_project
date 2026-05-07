@@ -1,5 +1,6 @@
 *.code-workspace
 *.ini
+!apps/backend/src/alembic.ini
 **/*.db
 **/__pycache__/
 node_modules/
