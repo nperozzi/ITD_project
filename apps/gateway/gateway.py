@@ -13,7 +13,7 @@ BROKER = os.getenv("MQTT_BROKER", "mosquitto")
 PORT = int(os.getenv("MQTT_PORT", "1883"))
 GATEWAY_MODE = os.getenv("GATEWAY_MODE", "mqtt")
 
-PAYLOAD_TOPIC_PATTERN = re.compile(r"^tag(?P<tag_id>\d+)/payload$")
+PAYLOAD_TOPIC_PATTERN = re.compile(r"^tag/(?P<tag_id>\d+)/payload$")
 TAG_CONTRACTS = {
     1: TAG1,
     2: TAG2,
