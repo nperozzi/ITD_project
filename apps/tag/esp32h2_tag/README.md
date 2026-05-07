@@ -48,6 +48,9 @@ Go to `Tools -> Board: ... -> esp32 -> Select 'ESP32H2 Dev Module'`.
 
 Go to `Tools -> Manage Libraries... -> Search for 'GxEPD2' by 'Jean-Marc Zingg' -> Click 'INSTALL'`.
 
+### 4. Install **ArduinoJSON** library for JSON handling
+Go to `Tools -> Manage Libraries... -> Search for 'ArduinoJson' by 'Benoit Blanchon' -> Click 'INSTALL'`
+
 ## Wiring Setup
 
 1. Connect the USB-C to USB-C cable to first to the `UART` USB-C port on the **ESP32-H2-DevKitM-1**.
@@ -94,6 +97,7 @@ Using the app, team members can:
 - connect to it over BLE
 - inspect its services and characteristics
 - send test data
+- receive acknowledge data back 
 - verify responses during development
 
 ## Before Scanning
@@ -104,7 +108,7 @@ If the firmware is not uploaded to the board, the tag may not advertise correctl
 
 It is also recommended to keep the **Serial Monitor** open in the **Arduino IDE** during testing. This makes it easier to observe debug output and verify whether the tag is receiving data as expected.
 
-## Setup
+## Setup for test with nRF Connect app
 
 ### iOS
 
@@ -133,11 +137,20 @@ After connecting to the tag:
 1. Open the custom BLE service.
 2. Locate the characteristic used to **send payload data to the tag** *(identified as "Write" under Characteristics)*.
 3. Select the write option for that characteristic and set the value format to **UTF-8**, as the default format is typically **Byte Array (Hex)**.
-4. Enter the text to be sent to the tag.
+4. Enter the text to be sent to the tag (example JSON below) exactly as written:
+
+- Expected input examples
+
+{"tagId":"TG_01","title":"Apple 1kg","finalPrice":49.00}
+{"tagId":1,"title":"Apple 1kg","finalPrice":49.00}
 5. Send the value.
 6. Sent value should display on the  **WeAct Studio 2.13" Monochrome E-Paper Module**
 
 This step is used to test whether the tag can receive and process payload data correctly.
+
+### OBS
+
+The expected fields of validation are the keys sent by the the **Gateway/Backend** which are - 'tagId', 'title' and 'finalPrice' any other fields added will be filtered out by the tag. But the tag will throw an eeror if any of the filed of validation is missing.
 
 ## Debugging
 
@@ -155,3 +168,33 @@ If the tag does not appear in the scanner, first verify that:
 - the correct firmware has been flashed
 - BLE advertising is active
 - the Serial Monitor shows normal debug output
+
+## Setup for test with an actual Gateway
+
+The gateway client scans a connects to the Tag BLE-server service and  and characteristics. The Tag has one service with contains two characteristics, with its respective UUID that that gateway client can connects to send and recieve data, read data.
+
+### Expected behaviour of the Tag
+
+- Discoverable and connectable. The tag is expected to stop advertising when a client is connected to the Tag BLE-server
+- Able to inspect and interact with the service and characteristics of the Tag when connected to it.
+- Send raw json payload to the payload characteristic.
+- Send acknowlegde value back to client
+- The Tag is expected ignore any other field that is not the validation field, but throw an error if any of the validation field is missing.
+- The Tag is expected to display nnly the designated fields on the e-paper module
+
+### Input expected from the Gateway by the Tag
+
+The Tag advertises with its DEVICE NAME **TG_01** and can receive data from a BLE-Client with its DEVICE NAME or the Tag_ID_NUMBER **1** as the value to the key **tagId** in the field of validation.
+
+#### Expected examples
+
+- {"tagId":"TG_01","title":"Apple 1kg","finalPrice":49.00}
+
+- {"tagId":1,"title":"Apple 1kg","finalPrice":49.00}
+
+- {"tagId":1,"title":"Apple 1kg","finalPrice":49.00,"status":"ok"} -> status is expected to be ignored by the Tag.
+
+#### Expected output on e-paper module
+
+ Apple 1kg
+ 49.00 SEK
